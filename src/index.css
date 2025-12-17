@@ -115,7 +115,7 @@
 
 @layer utilities {
   .glass {
-    @apply bg-card/80 backdrop-blur-xl border border-glass-border/20 shadow-xl;
+    @apply bg-card/55 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-2xl;
   }
 
   .gradient-bg {

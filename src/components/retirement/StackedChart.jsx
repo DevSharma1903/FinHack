@@ -39,7 +39,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
   return (
     <div className="glass rounded-2xl p-5 animate-fade-in" style={{ animationDelay: "300ms" }}>
       <h3 className="text-lg font-semibold text-foreground mb-4">Growth Over Time</h3>
-      <div className="h-80">
+      <div className="h-[26rem] md:h-[32rem]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -73,7 +73,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               tickLine={{ stroke: "hsl(var(--border))" }}
               axisLine={{ stroke: "hsl(var(--border))" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1, opacity: 0.6 }} />
             <Legend 
               wrapperStyle={{ paddingTop: "20px" }}
               formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
@@ -86,6 +86,12 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               stroke="hsl(217, 91%, 60%)"
               fill="url(#principalGradient)"
               name="Principal (A)"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(217, 91%, 60%)" }}
+              isAnimationActive
+              animationDuration={1200}
+              animationEasing="ease-out"
             />
             <Area
               type="monotone"
@@ -94,6 +100,12 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               stroke="hsl(160, 84%, 39%)"
               fill="url(#returnsGradient)"
               name="Returns (A)"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(160, 84%, 39%)" }}
+              isAnimationActive
+              animationDuration={1400}
+              animationEasing="ease-out"
             />
             
             {showComparison && (
@@ -105,6 +117,12 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   stroke="hsl(280, 70%, 60%)"
                   fill="url(#principalGradientB)"
                   name="Principal (B)"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(280, 70%, 60%)" }}
+                  isAnimationActive
+                  animationDuration={1200}
+                  animationEasing="ease-out"
                 />
                 <Area
                   type="monotone"
@@ -113,6 +131,12 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   stroke="hsl(40, 90%, 50%)"
                   fill="url(#returnsGradientB)"
                   name="Returns (B)"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(40, 90%, 50%)" }}
+                  isAnimationActive
+                  animationDuration={1400}
+                  animationEasing="ease-out"
                 />
               </>
             )}

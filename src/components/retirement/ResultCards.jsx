@@ -15,6 +15,10 @@ const formatCurrency = (value) => {
 };
 
 export function ResultCards({ results, isComparison = false }) {
+  const returnPct = typeof results.returnPercentage === "number" && Number.isFinite(results.returnPercentage)
+    ? results.returnPercentage
+    : null;
+
   const cards = [
     {
       title: "Total Corpus",
@@ -35,7 +39,7 @@ export function ResultCards({ results, isComparison = false }) {
     {
       title: "Returns Earned",
       value: results.returnsEarned,
-      subValue: `+${results.returnPercentage}%`,
+      subValue: returnPct === null ? null : `+${returnPct.toFixed(1)}%`,
       subLabel: "gain",
       icon: PiggyBank,
       gradient: "from-accent to-accent/70",
