@@ -6,6 +6,7 @@ import { StackedChart } from "@/components/retirement/StackedChart";
 import { ComparisonToggle } from "@/components/retirement/ComparisonToggle";
 import { DetailedStats } from "@/components/retirement/DetailedStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -105,6 +106,8 @@ const Index = () => {
                     comparisonData={showComparison ? comparisonResults.yearlyData : null}
                     showComparison={showComparison}
                   />
+
+                  <PolicyMarketHub />
                 </>
               )}
             </div>
