@@ -4,25 +4,25 @@ export const defaultFeeds: FeedDefinition[] = [
   {
     id: "budget-tax",
     title: "Budget / Tax updates (LTGC, slabs)",
-    url: "https://rbi.org.in/pressreleases_rss.xml",
+    url: "",
     tags: ["budget", "tax", "ltcg"],
   },
   {
     id: "parliament-bills",
     title: "Parliament / Bills (finance, pensions, insurance)",
-    url: "https://rbi.org.in/notifications_rss.xml",
+    url: "",
     tags: ["bill", "pension", "insurance"],
   },
   {
     id: "epfo-labour",
     title: "EPFO / Labour notifications (EPF, gratuity)",
-    url: "https://rbi.org.in/speeches_rss.xml",
+    url: "",
     tags: ["epf", "gratuity", "labour"],
   },
   {
     id: "sebi-updates",
     title: "SEBI updates (mutual funds, market regulation)",
-    url: "https://www.sebi.gov.in/sebirss.xml",
+    url: "",
     tags: ["sebi", "mutual_funds", "sip"],
   },
 ];

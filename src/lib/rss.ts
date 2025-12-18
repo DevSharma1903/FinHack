@@ -16,7 +16,7 @@ export type FeedItem = {
 };
 
 export type FetchFeedOptions = {
-  proxy?: "none" | "allorigins";
+  proxy?: "none";
   timeoutMs?: number;
 };
 
@@ -46,9 +46,7 @@ async function fetchText(url: string, opts: FetchFeedOptions) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-  const fetchUrl = proxy === "allorigins"
-    ? `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-    : url;
+  const fetchUrl = proxy === "none" ? url : url;
 
   try {
     const res = await fetch(fetchUrl, { signal: controller.signal });

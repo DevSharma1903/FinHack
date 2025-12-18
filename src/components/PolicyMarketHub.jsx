@@ -73,6 +73,7 @@ export function PolicyMarketHub({
   autoRefreshOnMount,
 } = {}) {
   const isProduct = mode === "product";
+  const isLocalOnly = isProduct;
   const shouldAutoRefresh = typeof autoRefreshOnMount === "boolean" ? autoRefreshOnMount : isProduct;
 
   const [tabValue, setTabValue] = useState(defaultTab);
@@ -81,7 +82,7 @@ export function PolicyMarketHub({
   const [keywordQuery, setKeywordQuery] = useLocalStorageState("pmh.keywords", "ltcg, epf, nps, rd, fd, sip");
   const [notifyInApp, setNotifyInApp] = useLocalStorageState("pmh.notifyInApp", true);
   const [webhookUrl, setWebhookUrl] = useLocalStorageState("pmh.webhookUrl", "");
-  const [proxyMode, setProxyMode] = useLocalStorageState("pmh.proxyMode", isProduct ? "allorigins" : "none");
+  const [proxyMode, setProxyMode] = useLocalStorageState("pmh.proxyMode", "none");
   const [pollSeconds, setPollSeconds] = useLocalStorageState("pmh.pollSeconds", 0);
   const [marketRiskEnabled, setMarketRiskEnabled] = useLocalStorageState("pmh.marketRiskEnabled", true);
 
@@ -122,6 +123,27 @@ export function PolicyMarketHub({
       setFeeds(defaultFeeds);
     }
   }, [feeds, isProduct, setFeeds]);
+
+  const localPlaceholderItems = useMemo(() => {
+    return [
+      {
+        id: "local-1",
+        feedId: "local",
+        feedTitle: "Local placeholder",
+        title: "(Placeholder) Budget policy update detected: review LTCG assumptions",
+        publishedAt: new Date().toISOString().slice(0, 10),
+        summary: "Local-only mode: no external fetching. Replace sources later when you approve.",
+      },
+      {
+        id: "local-2",
+        feedId: "local",
+        feedTitle: "Local placeholder",
+        title: "(Placeholder) Interest-rate environment shift may impact FD/RD returns",
+        publishedAt: new Date().toISOString().slice(0, 10),
+        summary: "Local-only mode: these are demo items, not scraped from the web.",
+      },
+    ];
+  }, []);
 
   useEffect(() => {
     setTabValue(defaultTab);
@@ -223,6 +245,22 @@ export function PolicyMarketHub({
   };
 
   const refreshFeeds = useCallback(async () => {
+    if (isLocalOnly) {
+      setFeedErrors({});
+      setFeedItems(localPlaceholderItems);
+      lastRefreshAtRef.current = new Date().toISOString();
+      try {
+        const insight = deriveInsightFromItems(localPlaceholderItems);
+        if (insight) {
+          window.localStorage.setItem("pmh.latestInsight", JSON.stringify(insight));
+        }
+      } catch {
+        // ignore
+      }
+      toast.message("Local-only mode", { description: "External sources are disabled. Showing placeholder updates." });
+      return;
+    }
+
     const usableFeeds = feeds.filter((f) => typeof f.url === "string" && f.url.trim().length > 0);
     if (usableFeeds.length === 0) {
       toast.error("Add at least one feed URL to refresh.");
@@ -282,15 +320,7 @@ export function PolicyMarketHub({
         }
 
         if (webhookUrl && typeof webhookUrl === "string" && webhookUrl.trim().length > 0) {
-          try {
-            await fetch(webhookUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: "policy_alert", items: freshMatching.slice(0, 20) }),
-            });
-          } catch {
-            toast.message("Webhook failed", { description: "The webhook POST request failed (check CORS/back-end)." });
-          }
+          toast.message("Webhook disabled", { description: "Local-only mode: outgoing requests are disabled." });
         }
       }
 
@@ -300,7 +330,7 @@ export function PolicyMarketHub({
     } finally {
       setIsRefreshing(false);
     }
-  }, [feeds, isMatch, notifyInApp, proxyMode, seenItemIds, setSeenItemIds, webhookUrl]);
+  }, [feeds, isLocalOnly, isMatch, localPlaceholderItems, notifyInApp, proxyMode, seenItemIds, setSeenItemIds, webhookUrl]);
 
   useEffect(() => {
     if (!shouldAutoRefresh) return;
@@ -397,15 +427,13 @@ export function PolicyMarketHub({
                                   {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
                                 </p>
                               </div>
-                              {item.link ? (
-                                <Button
-                                  variant="outline"
-                                  className="bg-card/40"
-                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
-                                >
-                                  Open
-                                </Button>
-                              ) : null}
+                              <Button
+                                variant="outline"
+                                className="bg-card/40"
+                                onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
+                              >
+                                Details
+                              </Button>
                             </div>
                           </div>
                         ))
@@ -433,15 +461,13 @@ export function PolicyMarketHub({
                                   {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
                                 </p>
                               </div>
-                              {item.link ? (
-                                <Button
-                                  variant="outline"
-                                  className="bg-card/40"
-                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
-                                >
-                                  Open
-                                </Button>
-                              ) : null}
+                              <Button
+                                variant="outline"
+                                className="bg-card/40"
+                                onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
+                              >
+                                Details
+                              </Button>
                             </div>
                           </div>
                         ))
@@ -536,7 +562,7 @@ export function PolicyMarketHub({
                                   value={f.url}
                                   onChange={(e) => updateFeed(f.id, { url: e.target.value })}
                                   className="bg-secondary/30"
-                                  placeholder="https://.../feed.xml"
+                                  placeholder="(local-only)"
                                 />
                               </TableCell>
                               <TableCell className="text-right">
@@ -571,15 +597,13 @@ export function PolicyMarketHub({
                                   {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
                                 </p>
                               </div>
-                              {item.link ? (
-                                <Button
-                                  variant="outline"
-                                  className="bg-card/40"
-                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
-                                >
-                                  Open
-                                </Button>
-                              ) : null}
+                              <Button
+                                variant="outline"
+                                className="bg-card/40"
+                                onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
+                              >
+                                Details
+                              </Button>
                             </div>
                           </div>
                         ))
@@ -597,7 +621,7 @@ export function PolicyMarketHub({
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">RSS/Atom URL</Label>
-                      <Input value={newFeedUrl} onChange={(e) => setNewFeedUrl(e.target.value)} placeholder="https://.../feed.xml" />
+                      <Input value={newFeedUrl} onChange={(e) => setNewFeedUrl(e.target.value)} placeholder="(disabled in local-only mode)" />
                     </div>
                     <Button className="w-full" onClick={addFeed}>
                       Add
@@ -624,7 +648,7 @@ export function PolicyMarketHub({
 
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
-                      <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="https://your-server/webhook" />
+                      <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="(disabled in local-only mode)" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -636,7 +660,6 @@ export function PolicyMarketHub({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">Direct</SelectItem>
-                            <SelectItem value="allorigins">AllOrigins (CORS workaround)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -715,7 +738,7 @@ export function PolicyMarketHub({
 
                   <div className="mt-4 space-y-2">
                     <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
-                    <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="https://your-server/webhook" />
+                    <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="(disabled in local-only mode)" />
                   </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-3">
@@ -753,7 +776,6 @@ export function PolicyMarketHub({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">Direct</SelectItem>
-                          <SelectItem value="allorigins">AllOrigins (CORS workaround)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
