@@ -38,14 +38,52 @@ function formatDateMaybe(value) {
   return value;
 }
 
-export function PolicyMarketHub() {
+function deriveInsightFromItems(items = []) {
+  const item = items[0];
+  if (!item) return null;
+
+  const title = String(item.title || "");
+  const summary = String(item.summary || "");
+  const text = `${title} ${summary}`.toLowerCase();
+
+  let message = "Policy update detected. Review impact on post-tax returns.";
+  if (/(ltcg|stcg|capital gains|tds|surcharge|deduction|section 80|80c|80ccd)/i.test(text)) {
+    message = "Based on recent tax policy updates, post-tax equity returns may change. Review your SIP assumptions.";
+  } else if (/(repo|bank rate|interest rate|deposit rate|fd rate|fixed deposit)/i.test(text)) {
+    message = "Based on recent interest-rate updates, FD/RD returns may shift. Recheck your fixed-income assumptions.";
+  } else if (/(pension|nps|epf|gratuity)/i.test(text)) {
+    message = "Based on recent pension/retirement updates, review NPS/EPF assumptions and contribution strategy.";
+  }
+
+  return {
+    message,
+    title,
+    feedTitle: item.feedTitle,
+    publishedAt: item.publishedAt,
+    link: item.link,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export function PolicyMarketHub({
+  mode = "product",
+  defaultTab = "feeds",
+  visibleTabs = ["feeds", "curves", "alerts", "insurance", "education"],
+  hideHeader = false,
+  autoRefreshOnMount,
+} = {}) {
+  const isProduct = mode === "product";
+  const shouldAutoRefresh = typeof autoRefreshOnMount === "boolean" ? autoRefreshOnMount : isProduct;
+
+  const [tabValue, setTabValue] = useState(defaultTab);
   const [feeds, setFeeds] = useLocalStorageState("pmh.feeds", defaultFeeds);
   const [alertsEnabled, setAlertsEnabled] = useLocalStorageState("pmh.alertsEnabled", true);
   const [keywordQuery, setKeywordQuery] = useLocalStorageState("pmh.keywords", "ltcg, epf, nps, rd, fd, sip");
   const [notifyInApp, setNotifyInApp] = useLocalStorageState("pmh.notifyInApp", true);
   const [webhookUrl, setWebhookUrl] = useLocalStorageState("pmh.webhookUrl", "");
-  const [proxyMode, setProxyMode] = useLocalStorageState("pmh.proxyMode", "none");
+  const [proxyMode, setProxyMode] = useLocalStorageState("pmh.proxyMode", isProduct ? "allorigins" : "none");
   const [pollSeconds, setPollSeconds] = useLocalStorageState("pmh.pollSeconds", 0);
+  const [marketRiskEnabled, setMarketRiskEnabled] = useLocalStorageState("pmh.marketRiskEnabled", true);
 
   const [newFeedTitle, setNewFeedTitle] = useState("");
   const [newFeedUrl, setNewFeedUrl] = useState("");
@@ -70,10 +108,24 @@ export function PolicyMarketHub() {
 
   const [curveInputs, setCurveInputs] = useLocalStorageState("pmh.curves", {
     years: 20,
+    age: 28,
+    goalAge: 60,
     monthlyInvestment: 10000,
     expectedReturn: 12,
     inflation: 6,
   });
+
+  useEffect(() => {
+    if (!isProduct) return;
+    const hasAnyUrl = Array.isArray(feeds) && feeds.some((f) => typeof f?.url === "string" && f.url.trim().length > 0);
+    if (!hasAnyUrl) {
+      setFeeds(defaultFeeds);
+    }
+  }, [feeds, isProduct, setFeeds]);
+
+  useEffect(() => {
+    setTabValue(defaultTab);
+  }, [defaultTab]);
 
   const keywords = useMemo(() => {
     return String(keywordQuery)
@@ -96,7 +148,8 @@ export function PolicyMarketHub() {
   }, [feedItems, isMatch]);
 
   const curveResults = useMemo(() => {
-    const years = clampNumber(curveInputs.years, 1, 60, 20);
+    const yearsFromAge = clampNumber(Number(curveInputs.goalAge) - Number(curveInputs.age), 1, 60, 20);
+    const years = isProduct ? yearsFromAge : clampNumber(curveInputs.years, 1, 60, 20);
     const monthlyInvestment = clampNumber(curveInputs.monthlyInvestment, 0, 10000000, 10000);
     const expectedReturn = clampNumber(curveInputs.expectedReturn, 0, 30, 12);
     const inflation = clampNumber(curveInputs.inflation, 0, 20, 6);
@@ -119,7 +172,7 @@ export function PolicyMarketHub() {
     });
 
     return { sip, rd, fd, chartData };
-  }, [curveInputs]);
+  }, [curveInputs, isProduct]);
 
   const insurance = useMemo(() => {
     return computeInsuranceNeed({
@@ -199,13 +252,24 @@ export function PolicyMarketHub() {
         const map = new Map();
         prev.forEach((i) => map.set(`${i.feedId}:${i.id}`, i));
         nextItems.forEach((i) => map.set(`${i.feedId}:${i.id}`, i));
-        return Array.from(map.values()).sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+        return Array.from(map.values()).sort((a, b) =>
+          String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")),
+        );
       });
 
       lastRefreshAtRef.current = new Date().toISOString();
 
       const seen = new Set(seenItemIds);
       const freshMatching = nextItems.filter((i) => !seen.has(`${i.feedId}:${i.id}`) && isMatch(i));
+
+      try {
+        const insight = deriveInsightFromItems(freshMatching.length > 0 ? freshMatching : nextItems);
+        if (insight) {
+          window.localStorage.setItem("pmh.latestInsight", JSON.stringify(insight));
+        }
+      } catch {
+        // ignore
+      }
 
       if (freshMatching.length > 0) {
         const toAdd = freshMatching.map((i) => `${i.feedId}:${i.id}`);
@@ -239,6 +303,11 @@ export function PolicyMarketHub() {
   }, [feeds, isMatch, notifyInApp, proxyMode, seenItemIds, setSeenItemIds, webhookUrl]);
 
   useEffect(() => {
+    if (!shouldAutoRefresh) return;
+    refreshFeeds();
+  }, [refreshFeeds, shouldAutoRefresh]);
+
+  useEffect(() => {
     const s = Number(pollSeconds);
     if (!Number.isFinite(s) || s <= 0) return;
     const id = window.setInterval(() => {
@@ -250,182 +319,433 @@ export function PolicyMarketHub() {
 
   return (
     <Card className="glass border-white/10">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle className="text-xl">Policy, Feeds & Advanced Scenarios</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              RSS feeds, keyword alerts, SIP vs RD vs FD curves, and a policy/education library.
-            </p>
+      {!hideHeader ? (
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="text-xl">Policy & Market Hub</CardTitle>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Real-time feeds, policy-aware insights, and cross-instrument comparisons.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="bg-card/40" onClick={refreshFeeds} disabled={isRefreshing}>
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="bg-card/40" onClick={refreshFeeds} disabled={isRefreshing}>
-              {isRefreshing ? "Refreshing..." : "Refresh feeds"}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      ) : null}
 
       <CardContent>
-        <Tabs defaultValue="feeds">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-secondary/50">
-            <TabsTrigger value="feeds" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Feeds & Alerts
-            </TabsTrigger>
-            <TabsTrigger value="curves" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Growth Curves
-            </TabsTrigger>
-            <TabsTrigger value="insurance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Insurance
-            </TabsTrigger>
-            <TabsTrigger value="education" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Policy Library
-            </TabsTrigger>
+        <Tabs value={tabValue} onValueChange={setTabValue}>
+          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-secondary/50">
+            {visibleTabs.includes("feeds") ? (
+              <TabsTrigger value="feeds" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Policy & News
+              </TabsTrigger>
+            ) : null}
+            {visibleTabs.includes("curves") ? (
+              <TabsTrigger value="curves" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Growth Curves
+              </TabsTrigger>
+            ) : null}
+            {visibleTabs.includes("alerts") ? (
+              <TabsTrigger value="alerts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Alerts
+              </TabsTrigger>
+            ) : null}
+            {visibleTabs.includes("insurance") ? (
+              <TabsTrigger value="insurance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Insurance
+              </TabsTrigger>
+            ) : null}
+            {visibleTabs.includes("education") ? (
+              <TabsTrigger value="education" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Education
+              </TabsTrigger>
+            ) : null}
           </TabsList>
 
           <TabsContent value="feeds" className="mt-4">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="glass rounded-2xl p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-foreground">Feeds</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-card/40">
-                        {feeds.length}
-                      </Badge>
-                      <Badge variant="secondary" className="bg-secondary/60">
-                        Last refresh: {formatDateMaybe(lastRefreshAtRef.current)}
-                      </Badge>
+            {isProduct ? (
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Highlights</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-card/40">
+                          {matchingItems.length}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-secondary/60">
+                          Updated: {formatDateMaybe(lastRefreshAtRef.current)}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      {matchingItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No relevant policy signals detected yet.</p>
+                      ) : (
+                        matchingItems.slice(0, 10).map((item) => (
+                          <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
+                                </p>
+                              </div>
+                              {item.link ? (
+                                <Button
+                                  variant="outline"
+                                  className="bg-card/40"
+                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
+                                >
+                                  Open
+                                </Button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
-                  <div className="mt-3 overflow-hidden rounded-xl border border-border/60">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Feed</TableHead>
-                          <TableHead className="hidden md:table-cell">URL</TableHead>
-                          <TableHead className="text-right">Action</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {feeds.map((f) => (
-                          <TableRow key={f.id}>
-                            <TableCell>
-                              <div className="space-y-2">
-                                <p className="text-sm font-medium text-foreground">{f.title}</p>
-                                <div className="flex flex-wrap gap-1">
-                                  {(f.tags || []).map((t) => (
-                                    <Badge key={t} variant="secondary" className="bg-secondary/60">
-                                      {t}
-                                    </Badge>
-                                  ))}
-                                  {feedErrors[f.id] ? (
-                                    <Badge variant="secondary" className="bg-destructive/20 text-destructive">
-                                      {feedErrors[f.id]}
-                                    </Badge>
-                                  ) : null}
-                                </div>
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Latest updates</p>
+                      <Badge variant="outline" className="bg-card/40">
+                        {feedItems.length}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {feedItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Refresh to load updates.</p>
+                      ) : (
+                        feedItems.slice(0, 8).map((item) => (
+                          <div key={`${item.feedId}:${item.id}:latest`} className="glass rounded-2xl p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
+                                </p>
                               </div>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              <Input
-                                value={f.url}
-                                onChange={(e) => updateFeed(f.id, { url: e.target.value })}
-                                className="bg-secondary/30"
-                                placeholder="https://.../feed.xml"
-                              />
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="outline" className="bg-card/40" onClick={() => removeFeed(f.id)}>
-                                Remove
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                              {item.link ? (
+                                <Button
+                                  variant="outline"
+                                  className="bg-card/40"
+                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
+                                >
+                                  Open
+                                </Button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="glass rounded-2xl p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-foreground">Matches</p>
-                    <Badge variant="outline" className="bg-card/40">
-                      {matchingItems.length}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {matchingItems.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No matching items yet. Refresh feeds to load data.</p>
-                    ) : (
-                      matchingItems.slice(0, 10).map((item) => (
-                        <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-medium text-foreground">{item.title}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
-                              </p>
-                            </div>
-                            {item.link ? (
-                              <Button
-                                variant="outline"
-                                className="bg-card/40"
-                                onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
-                              >
-                                Open
-                              </Button>
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Monitoring</p>
+                      <Badge variant="outline" className="bg-card/40">{feeds.length}</Badge>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {feeds.map((f) => (
+                        <div key={f.id} className="glass rounded-2xl p-4">
+                          <p className="text-sm font-medium text-foreground">{f.title}</p>
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {(f.tags || []).map((t) => (
+                              <Badge key={t} variant="secondary" className="bg-secondary/60">
+                                {t}
+                              </Badge>
+                            ))}
+                            {feedErrors[f.id] ? (
+                              <Badge variant="secondary" className="bg-destructive/20 text-destructive">
+                                {feedErrors[f.id]}
+                              </Badge>
                             ) : null}
                           </div>
                         </div>
-                      ))
-                    )}
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="glass rounded-2xl p-5 space-y-2">
+                    <p className="text-sm font-semibold text-foreground">Insight layer</p>
+                    <p className="text-sm text-muted-foreground">
+                      The app flags policy/tax/interest-rate items and surfaces them as alerts. Next step: connect these events to scenario
+                      parameter shifts (tax drag, expected return shocks).
+                    </p>
                   </div>
                 </div>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Feeds</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-card/40">
+                          {feeds.length}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-secondary/60">
+                          Last refresh: {formatDateMaybe(lastRefreshAtRef.current)}
+                        </Badge>
+                      </div>
+                    </div>
 
-              <div className="lg:col-span-5 space-y-4">
-                <div className="glass rounded-2xl p-5 space-y-4">
-                  <p className="text-sm font-semibold text-foreground">Add feed</p>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Title</Label>
-                    <Input value={newFeedTitle} onChange={(e) => setNewFeedTitle(e.target.value)} placeholder="e.g., CBDT notifications" />
+                    <div className="mt-3 overflow-hidden rounded-xl border border-border/60">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Feed</TableHead>
+                            <TableHead className="hidden md:table-cell">URL</TableHead>
+                            <TableHead className="text-right">Action</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {feeds.map((f) => (
+                            <TableRow key={f.id}>
+                              <TableCell>
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-foreground">{f.title}</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {(f.tags || []).map((t) => (
+                                      <Badge key={t} variant="secondary" className="bg-secondary/60">
+                                        {t}
+                                      </Badge>
+                                    ))}
+                                    {feedErrors[f.id] ? (
+                                      <Badge variant="secondary" className="bg-destructive/20 text-destructive">
+                                        {feedErrors[f.id]}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                <Input
+                                  value={f.url}
+                                  onChange={(e) => updateFeed(f.id, { url: e.target.value })}
+                                  className="bg-secondary/30"
+                                  placeholder="https://.../feed.xml"
+                                />
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button variant="outline" className="bg-card/40" onClick={() => removeFeed(f.id)}>
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">RSS/Atom URL</Label>
-                    <Input value={newFeedUrl} onChange={(e) => setNewFeedUrl(e.target.value)} placeholder="https://.../feed.xml" />
+
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-foreground">Matches</p>
+                      <Badge variant="outline" className="bg-card/40">
+                        {matchingItems.length}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {matchingItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No matching items yet. Refresh feeds to load data.</p>
+                      ) : (
+                        matchingItems.slice(0, 10).map((item) => (
+                          <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
+                                </p>
+                              </div>
+                              {item.link ? (
+                                <Button
+                                  variant="outline"
+                                  className="bg-card/40"
+                                  onClick={() => window.open(item.link, "_blank", "noopener,noreferrer")}
+                                >
+                                  Open
+                                </Button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
-                  <Button className="w-full" onClick={addFeed}>
-                    Add
-                  </Button>
                 </div>
 
-                <div className="glass rounded-2xl p-5 space-y-4">
-                  <p className="text-sm font-semibold text-foreground">Alert settings</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} className="data-[state=checked]:bg-accent" />
-                      <p className="text-xs text-muted-foreground">Enable keyword alerts</p>
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="glass rounded-2xl p-5 space-y-4">
+                    <p className="text-sm font-semibold text-foreground">Add feed</p>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Title</Label>
+                      <Input value={newFeedTitle} onChange={(e) => setNewFeedTitle(e.target.value)} placeholder="e.g., CBDT notifications" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch checked={notifyInApp} onCheckedChange={setNotifyInApp} className="data-[state=checked]:bg-accent" />
-                      <p className="text-xs text-muted-foreground">Notify</p>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">RSS/Atom URL</Label>
+                      <Input value={newFeedUrl} onChange={(e) => setNewFeedUrl(e.target.value)} placeholder="https://.../feed.xml" />
+                    </div>
+                    <Button className="w-full" onClick={addFeed}>
+                      Add
+                    </Button>
+                  </div>
+
+                  <div className="glass rounded-2xl p-5 space-y-4">
+                    <p className="text-sm font-semibold text-foreground">Alert settings</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} className="data-[state=checked]:bg-accent" />
+                        <p className="text-xs text-muted-foreground">Enable keyword alerts</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch checked={notifyInApp} onCheckedChange={setNotifyInApp} className="data-[state=checked]:bg-accent" />
+                        <p className="text-xs text-muted-foreground">Notify</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Keywords (comma/newline separated)</Label>
+                      <Textarea value={keywordQuery} onChange={(e) => setKeywordQuery(e.target.value)} className="bg-secondary/30" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
+                      <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="https://your-server/webhook" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">RSS proxy</Label>
+                        <Select value={proxyMode} onValueChange={setProxyMode}>
+                          <SelectTrigger className="bg-secondary/40">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Direct</SelectItem>
+                            <SelectItem value="allorigins">AllOrigins (CORS workaround)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Poll (seconds)</Label>
+                        <Input
+                          value={pollSeconds}
+                          onChange={(e) => setPollSeconds(clampNumber(e.target.value, 0, 3600, 0))}
+                          className="bg-secondary/30"
+                          placeholder="0 = off"
+                        />
+                      </div>
+                    </div>
+
+                    <Button variant="outline" className="bg-card/40" onClick={() => setSeenItemIds([])}>
+                      Reset seen items
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="alerts" className="mt-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="glass rounded-2xl p-5">
+                  <p className="text-sm font-semibold text-foreground">In-app alerts</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Alerts appear as notification popups when new matching items are detected.</p>
+
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} className="data-[state=checked]:bg-accent" />
+                        <p className="text-sm text-foreground">Keyword alerts</p>
+                      </div>
+                      <Badge variant="secondary" className="bg-secondary/60">
+                        {alertsEnabled ? "On" : "Off"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch checked={notifyInApp} onCheckedChange={setNotifyInApp} className="data-[state=checked]:bg-accent" />
+                        <p className="text-sm text-foreground">Popup notifications</p>
+                      </div>
+                      <Badge variant="secondary" className="bg-secondary/60">
+                        {notifyInApp ? "Enabled" : "Muted"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch checked={marketRiskEnabled} onCheckedChange={setMarketRiskEnabled} className="data-[state=checked]:bg-accent" />
+                        <p className="text-sm text-foreground">Market risk indicators</p>
+                      </div>
+                      <Badge variant="secondary" className="bg-secondary/60">
+                        {marketRiskEnabled ? "On" : "Off"}
+                      </Badge>
                     </div>
                   </div>
+
+                  <Separator className="my-4" />
 
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Keywords (comma/newline separated)</Label>
                     <Textarea value={keywordQuery} onChange={(e) => setKeywordQuery(e.target.value)} className="bg-secondary/30" />
                   </div>
+                </div>
 
-                  <div className="space-y-2">
+                <div className="glass rounded-2xl p-5">
+                  <p className="text-sm font-semibold text-foreground">Webhook alerts</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Provide a webhook endpoint to receive POST events. Note: browser CORS rules may require a backend relay.
+                  </p>
+
+                  <div className="mt-4 space-y-2">
                     <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
                     <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="https://your-server/webhook" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
+                  <div className="mt-4 grid grid-cols-1 gap-3">
+                    <div className="glass rounded-2xl p-4">
+                      <p className="text-sm font-medium text-foreground">Events sent</p>
+                      <p className="mt-2 text-sm text-muted-foreground">policy_alert (new feed items matching keywords)</p>
+                      <p className="mt-1 text-sm text-muted-foreground">policy_change (reserved)</p>
+                      <p className="mt-1 text-sm text-muted-foreground">market_risk (reserved)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 space-y-4">
+                <div className="glass rounded-2xl p-5">
+                  <p className="text-sm font-semibold text-foreground">Refresh cadence</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Optional auto-refresh. Keep it off unless you need background monitoring.</p>
+
+                  <div className="mt-4 space-y-2">
+                    <Label className="text-xs text-muted-foreground">Poll (seconds)</Label>
+                    <Input
+                      value={pollSeconds}
+                      onChange={(e) => setPollSeconds(clampNumber(e.target.value, 0, 3600, 0))}
+                      className="bg-secondary/30"
+                      placeholder="0 = off"
+                    />
+                  </div>
+
+                  {!isProduct ? (
+                    <div className="mt-4 space-y-2">
                       <Label className="text-xs text-muted-foreground">RSS proxy</Label>
                       <Select value={proxyMode} onValueChange={setProxyMode}>
                         <SelectTrigger className="bg-secondary/40">
@@ -437,18 +757,9 @@ export function PolicyMarketHub() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Poll (seconds)</Label>
-                      <Input
-                        value={pollSeconds}
-                        onChange={(e) => setPollSeconds(clampNumber(e.target.value, 0, 3600, 0))}
-                        className="bg-secondary/30"
-                        placeholder="0 = off"
-                      />
-                    </div>
-                  </div>
+                  ) : null}
 
-                  <Button variant="outline" className="bg-card/40" onClick={() => setSeenItemIds([])}>
+                  <Button variant="outline" className="mt-4 w-full bg-card/40" onClick={() => setSeenItemIds([])}>
                     Reset seen items
                   </Button>
                 </div>
@@ -463,10 +774,23 @@ export function PolicyMarketHub() {
                   <p className="text-sm font-semibold text-foreground">Curve inputs</p>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Years</Label>
-                      <Input value={curveInputs.years} onChange={(e) => setCurveInputs((p) => ({ ...p, years: e.target.value }))} className="bg-secondary/30" />
-                    </div>
+                    {isProduct ? (
+                      <>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground">Current age</Label>
+                          <Input value={curveInputs.age} onChange={(e) => setCurveInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary/30" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground">Goal age</Label>
+                          <Input value={curveInputs.goalAge} onChange={(e) => setCurveInputs((p) => ({ ...p, goalAge: e.target.value }))} className="bg-secondary/30" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Years</Label>
+                        <Input value={curveInputs.years} onChange={(e) => setCurveInputs((p) => ({ ...p, years: e.target.value }))} className="bg-secondary/30" />
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Monthly investment</Label>
                       <Input value={curveInputs.monthlyInvestment} onChange={(e) => setCurveInputs((p) => ({ ...p, monthlyInvestment: e.target.value }))} className="bg-secondary/30" />
