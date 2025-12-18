@@ -52,13 +52,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1000px_circle_at_10%_-10%,hsl(var(--primary)/0.18),transparent_55%),radial-gradient(900px_circle_at_90%_0%,hsl(var(--accent)/0.14),transparent_60%),linear-gradient(to_bottom,hsl(var(--background)),hsl(var(--background)))] p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">FinHack</h1>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">FinHack</h1>
               <p className="text-muted-foreground">Policy-aware simulations for SIP, FD, RD and retirement planning</p>
             </div>
 
@@ -72,7 +72,7 @@ const Index = () => {
                   });
                 }}
               >
-                <SelectTrigger className="w-[10.5rem] glass border-white/10 bg-card/40 hidden md:flex">
+                <SelectTrigger className="w-[10.5rem] border border-border bg-card hidden md:flex">
                   <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -89,7 +89,7 @@ const Index = () => {
 
         <div className="space-y-6">
           <Tabs value={activeSection} onValueChange={setActiveSection}>
-            <TabsList className="w-full flex flex-wrap gap-1 bg-secondary/50">
+            <TabsList className="w-full flex flex-wrap gap-1 bg-secondary">
               <TabsTrigger value="decoder" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Decoder
               </TabsTrigger>
@@ -114,14 +114,14 @@ const Index = () => {
           {activeSection === "decoder" ? (
             <div className="space-y-4">
               {policyImpactText ? (
-                <Card className="glass border-white/10">
+                <Card>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <CardTitle className="text-xl">Policy impact</CardTitle>
                         <p className="mt-1 text-sm text-muted-foreground">Connected to latest RSS updates</p>
                       </div>
-                      <Badge variant="secondary" className="bg-secondary/60">live</Badge>
+                      <Badge variant="secondary" className="bg-secondary">live</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -142,17 +142,17 @@ const Index = () => {
                 visibleTabs={["curves"]}
               />
 
-              <Card className="glass border-white/10">
+              <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-xl">Hybrid retirement scenarios</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">NPS + private term insurance + EPF/gratuity (UI ready; data connectors next).</p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="bg-secondary/60">NPS</Badge>
-                    <Badge variant="secondary" className="bg-secondary/60">Term insurance</Badge>
-                    <Badge variant="secondary" className="bg-secondary/60">EPF</Badge>
-                    <Badge variant="secondary" className="bg-secondary/60">Gratuity</Badge>
+                    <Badge variant="secondary" className="bg-secondary">NPS</Badge>
+                    <Badge variant="secondary" className="bg-secondary">Term insurance</Badge>
+                    <Badge variant="secondary" className="bg-secondary">EPF</Badge>
+                    <Badge variant="secondary" className="bg-secondary">Gratuity</Badge>
                   </div>
                 </CardContent>
               </Card>

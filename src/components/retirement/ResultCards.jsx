@@ -26,14 +26,12 @@ export function ResultCards({ results, isComparison = false }) {
       subValue: results.inflationAdjusted,
       subLabel: "Inflation adjusted",
       icon: TrendingUp,
-      gradient: "from-primary to-primary/70",
       textColor: "text-primary",
     },
     {
       title: "Investment Amount",
       value: results.totalInvested,
       icon: Wallet,
-      gradient: "from-muted-foreground to-muted-foreground/70",
       textColor: "text-foreground",
     },
     {
@@ -42,7 +40,6 @@ export function ResultCards({ results, isComparison = false }) {
       subValue: returnPct === null ? null : `+${returnPct.toFixed(1)}%`,
       subLabel: "gain",
       icon: PiggyBank,
-      gradient: "from-accent to-accent/70",
       textColor: "text-accent",
     },
   ];
@@ -56,11 +53,11 @@ export function ResultCards({ results, isComparison = false }) {
           style={{ animationDelay: `${index * 100}ms` }}
         >
           <div className="flex items-start justify-between mb-3">
-            <div className={`p-2 rounded-xl bg-gradient-to-br ${card.gradient}`}>
-              <card.icon className="w-5 h-5 text-primary-foreground" />
+            <div className="p-2 rounded-xl bg-secondary border border-border">
+              <card.icon className="w-5 h-5 text-foreground" />
             </div>
             {card.subValue && typeof card.subValue === "string" && card.subValue.startsWith("+") && (
-              <span className="text-sm font-semibold text-accent bg-accent/10 px-2 py-1 rounded-full">
+              <span className="text-sm font-semibold px-2 py-1 rounded-full border border-border">
                 {card.subValue}
               </span>
             )}

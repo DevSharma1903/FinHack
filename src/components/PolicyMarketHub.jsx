@@ -348,7 +348,7 @@ export function PolicyMarketHub({
   }, [pollSeconds, refreshFeeds]);
 
   return (
-    <Card className="glass border-white/10">
+    <Card className="glass">
       {!hideHeader ? (
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-4">
@@ -359,7 +359,7 @@ export function PolicyMarketHub({
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="bg-card/40" onClick={refreshFeeds} disabled={isRefreshing}>
+              <Button variant="outline" className="bg-card" onClick={refreshFeeds} disabled={isRefreshing}>
                 {isRefreshing ? "Refreshing..." : "Refresh"}
               </Button>
             </div>
@@ -369,7 +369,7 @@ export function PolicyMarketHub({
 
       <CardContent>
         <Tabs value={tabValue} onValueChange={setTabValue}>
-          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-secondary/50">
+          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-secondary">
             {visibleTabs.includes("feeds") ? (
               <TabsTrigger value="feeds" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Policy & News
@@ -405,10 +405,10 @@ export function PolicyMarketHub({
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-foreground">Highlights</p>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-card/40">
+                        <Badge variant="outline" className="bg-card">
                           {matchingItems.length}
                         </Badge>
-                        <Badge variant="secondary" className="bg-secondary/60">
+                        <Badge variant="secondary" className="bg-secondary">
                           Updated: {formatDateMaybe(lastRefreshAtRef.current)}
                         </Badge>
                       </div>
@@ -429,7 +429,7 @@ export function PolicyMarketHub({
                               </div>
                               <Button
                                 variant="outline"
-                                className="bg-card/40"
+                                className="bg-card"
                                 onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
                               >
                                 Details
@@ -444,7 +444,7 @@ export function PolicyMarketHub({
                   <div className="glass rounded-2xl p-5">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-foreground">Latest updates</p>
-                      <Badge variant="outline" className="bg-card/40">
+                      <Badge variant="outline" className="bg-card">
                         {feedItems.length}
                       </Badge>
                     </div>
@@ -463,7 +463,7 @@ export function PolicyMarketHub({
                               </div>
                               <Button
                                 variant="outline"
-                                className="bg-card/40"
+                                className="bg-card"
                                 onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
                               >
                                 Details
@@ -475,25 +475,24 @@ export function PolicyMarketHub({
                     </div>
                   </div>
                 </div>
-
                 <div className="lg:col-span-5 space-y-4">
-                  <div className="glass rounded-2xl p-5">
+                  <div className="rounded-2xl p-5 bg-card">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-foreground">Monitoring</p>
-                      <Badge variant="outline" className="bg-card/40">{feeds.length}</Badge>
+                      <Badge variant="outline" className="bg-card">{feeds.length}</Badge>
                     </div>
                     <div className="mt-3 space-y-2">
                       {feeds.map((f) => (
-                        <div key={f.id} className="glass rounded-2xl p-4">
+                        <div key={f.id} className="rounded-2xl p-4 bg-secondary">
                           <p className="text-sm font-medium text-foreground">{f.title}</p>
                           <div className="mt-2 flex flex-wrap gap-1">
                             {(f.tags || []).map((t) => (
-                              <Badge key={t} variant="secondary" className="bg-secondary/60">
+                              <Badge key={t} variant="secondary" className="bg-secondary">
                                 {t}
                               </Badge>
                             ))}
                             {feedErrors[f.id] ? (
-                              <Badge variant="secondary" className="bg-destructive/20 text-destructive">
+                              <Badge variant="secondary" className="bg-destructive text-destructive-foreground">
                                 {feedErrors[f.id]}
                               </Badge>
                             ) : null}
@@ -502,184 +501,10 @@ export function PolicyMarketHub({
                       ))}
                     </div>
                   </div>
-
-                  <div className="glass rounded-2xl p-5 space-y-2">
-                    <p className="text-sm font-semibold text-foreground">Insight layer</p>
-                    <p className="text-sm text-muted-foreground">
-                      The app flags policy/tax/interest-rate items and surfaces them as alerts. Next step: connect these events to scenario
-                      parameter shifts (tax drag, expected return shocks).
-                    </p>
-                  </div>
                 </div>
-              </div>
+            </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="glass rounded-2xl p-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-foreground">Feeds</p>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-card/40">
-                          {feeds.length}
-                        </Badge>
-                        <Badge variant="secondary" className="bg-secondary/60">
-                          Last refresh: {formatDateMaybe(lastRefreshAtRef.current)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 overflow-hidden rounded-xl border border-border/60">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Feed</TableHead>
-                            <TableHead className="hidden md:table-cell">URL</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {feeds.map((f) => (
-                            <TableRow key={f.id}>
-                              <TableCell>
-                                <div className="space-y-2">
-                                  <p className="text-sm font-medium text-foreground">{f.title}</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {(f.tags || []).map((t) => (
-                                      <Badge key={t} variant="secondary" className="bg-secondary/60">
-                                        {t}
-                                      </Badge>
-                                    ))}
-                                    {feedErrors[f.id] ? (
-                                      <Badge variant="secondary" className="bg-destructive/20 text-destructive">
-                                        {feedErrors[f.id]}
-                                      </Badge>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                <Input
-                                  value={f.url}
-                                  onChange={(e) => updateFeed(f.id, { url: e.target.value })}
-                                  className="bg-secondary/30"
-                                  placeholder="(local-only)"
-                                />
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="outline" className="bg-card/40" onClick={() => removeFeed(f.id)}>
-                                  Remove
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-
-                  <div className="glass rounded-2xl p-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-foreground">Matches</p>
-                      <Badge variant="outline" className="bg-card/40">
-                        {matchingItems.length}
-                      </Badge>
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      {matchingItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No matching items yet. Refresh feeds to load data.</p>
-                      ) : (
-                        matchingItems.slice(0, 10).map((item) => (
-                          <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <p className="text-sm font-medium text-foreground">{item.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {item.feedTitle} • {formatDateMaybe(item.publishedAt)}
-                                </p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                className="bg-card/40"
-                                onClick={() => toast.message("Links disabled", { description: "Local-only mode: external links are disabled." })}
-                              >
-                                Details
-                              </Button>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-5 space-y-4">
-                  <div className="glass rounded-2xl p-5 space-y-4">
-                    <p className="text-sm font-semibold text-foreground">Add feed</p>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Title</Label>
-                      <Input value={newFeedTitle} onChange={(e) => setNewFeedTitle(e.target.value)} placeholder="e.g., CBDT notifications" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">RSS/Atom URL</Label>
-                      <Input value={newFeedUrl} onChange={(e) => setNewFeedUrl(e.target.value)} placeholder="(disabled in local-only mode)" />
-                    </div>
-                    <Button className="w-full" onClick={addFeed}>
-                      Add
-                    </Button>
-                  </div>
-
-                  <div className="glass rounded-2xl p-5 space-y-4">
-                    <p className="text-sm font-semibold text-foreground">Alert settings</p>
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} className="data-[state=checked]:bg-accent" />
-                        <p className="text-xs text-muted-foreground">Enable keyword alerts</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch checked={notifyInApp} onCheckedChange={setNotifyInApp} className="data-[state=checked]:bg-accent" />
-                        <p className="text-xs text-muted-foreground">Notify</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Keywords (comma/newline separated)</Label>
-                      <Textarea value={keywordQuery} onChange={(e) => setKeywordQuery(e.target.value)} className="bg-secondary/30" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
-                      <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="(disabled in local-only mode)" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">RSS proxy</Label>
-                        <Select value={proxyMode} onValueChange={setProxyMode}>
-                          <SelectTrigger className="bg-secondary/40">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Direct</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Poll (seconds)</Label>
-                        <Input
-                          value={pollSeconds}
-                          onChange={(e) => setPollSeconds(clampNumber(e.target.value, 0, 3600, 0))}
-                          className="bg-secondary/30"
-                          placeholder="0 = off"
-                        />
-                      </div>
-                    </div>
-
-                    <Button variant="outline" className="bg-card/40" onClick={() => setSeenItemIds([])}>
-                      Reset seen items
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <div className="text-sm text-muted-foreground">Local-only mode: feed management UI is disabled in this build.</div>
             )}
           </TabsContent>
 
@@ -696,7 +521,7 @@ export function PolicyMarketHub({
                         <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} className="data-[state=checked]:bg-accent" />
                         <p className="text-sm text-foreground">Keyword alerts</p>
                       </div>
-                      <Badge variant="secondary" className="bg-secondary/60">
+                      <Badge variant="secondary" className="bg-secondary">
                         {alertsEnabled ? "On" : "Off"}
                       </Badge>
                     </div>
@@ -706,7 +531,7 @@ export function PolicyMarketHub({
                         <Switch checked={notifyInApp} onCheckedChange={setNotifyInApp} className="data-[state=checked]:bg-accent" />
                         <p className="text-sm text-foreground">Popup notifications</p>
                       </div>
-                      <Badge variant="secondary" className="bg-secondary/60">
+                      <Badge variant="secondary" className="bg-secondary">
                         {notifyInApp ? "Enabled" : "Muted"}
                       </Badge>
                     </div>
@@ -716,7 +541,7 @@ export function PolicyMarketHub({
                         <Switch checked={marketRiskEnabled} onCheckedChange={setMarketRiskEnabled} className="data-[state=checked]:bg-accent" />
                         <p className="text-sm text-foreground">Market risk indicators</p>
                       </div>
-                      <Badge variant="secondary" className="bg-secondary/60">
+                      <Badge variant="secondary" className="bg-secondary">
                         {marketRiskEnabled ? "On" : "Off"}
                       </Badge>
                     </div>
@@ -726,7 +551,7 @@ export function PolicyMarketHub({
 
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Keywords (comma/newline separated)</Label>
-                    <Textarea value={keywordQuery} onChange={(e) => setKeywordQuery(e.target.value)} className="bg-secondary/30" />
+                    <Textarea value={keywordQuery} onChange={(e) => setKeywordQuery(e.target.value)} className="bg-secondary" />
                   </div>
                 </div>
 
@@ -738,7 +563,12 @@ export function PolicyMarketHub({
 
                   <div className="mt-4 space-y-2">
                     <Label className="text-xs text-muted-foreground">Webhook URL (optional)</Label>
-                    <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} className="bg-secondary/30" placeholder="(disabled in local-only mode)" />
+                    <Input
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      className="bg-secondary"
+                      placeholder="(disabled in local-only mode)"
+                    />
                   </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-3">
@@ -762,7 +592,7 @@ export function PolicyMarketHub({
                     <Input
                       value={pollSeconds}
                       onChange={(e) => setPollSeconds(clampNumber(e.target.value, 0, 3600, 0))}
-                      className="bg-secondary/30"
+                      className="bg-secondary"
                       placeholder="0 = off"
                     />
                   </div>
@@ -771,7 +601,7 @@ export function PolicyMarketHub({
                     <div className="mt-4 space-y-2">
                       <Label className="text-xs text-muted-foreground">RSS proxy</Label>
                       <Select value={proxyMode} onValueChange={setProxyMode}>
-                        <SelectTrigger className="bg-secondary/40">
+                        <SelectTrigger className="bg-secondary">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
@@ -781,7 +611,7 @@ export function PolicyMarketHub({
                     </div>
                   ) : null}
 
-                  <Button variant="outline" className="mt-4 w-full bg-card/40" onClick={() => setSeenItemIds([])}>
+                  <Button variant="outline" className="mt-4 w-full bg-card" onClick={() => setSeenItemIds([])}>
                     Reset seen items
                   </Button>
                 </div>
@@ -800,30 +630,30 @@ export function PolicyMarketHub({
                       <>
                         <div className="space-y-2">
                           <Label className="text-xs text-muted-foreground">Current age</Label>
-                          <Input value={curveInputs.age} onChange={(e) => setCurveInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary/30" />
+                          <Input value={curveInputs.age} onChange={(e) => setCurveInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary" />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs text-muted-foreground">Goal age</Label>
-                          <Input value={curveInputs.goalAge} onChange={(e) => setCurveInputs((p) => ({ ...p, goalAge: e.target.value }))} className="bg-secondary/30" />
+                          <Input value={curveInputs.goalAge} onChange={(e) => setCurveInputs((p) => ({ ...p, goalAge: e.target.value }))} className="bg-secondary" />
                         </div>
                       </>
                     ) : (
                       <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">Years</Label>
-                        <Input value={curveInputs.years} onChange={(e) => setCurveInputs((p) => ({ ...p, years: e.target.value }))} className="bg-secondary/30" />
+                        <Input value={curveInputs.years} onChange={(e) => setCurveInputs((p) => ({ ...p, years: e.target.value }))} className="bg-secondary" />
                       </div>
                     )}
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Monthly investment</Label>
-                      <Input value={curveInputs.monthlyInvestment} onChange={(e) => setCurveInputs((p) => ({ ...p, monthlyInvestment: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={curveInputs.monthlyInvestment} onChange={(e) => setCurveInputs((p) => ({ ...p, monthlyInvestment: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Expected return (p.a.)</Label>
-                      <Input value={curveInputs.expectedReturn} onChange={(e) => setCurveInputs((p) => ({ ...p, expectedReturn: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={curveInputs.expectedReturn} onChange={(e) => setCurveInputs((p) => ({ ...p, expectedReturn: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Inflation</Label>
-                      <Input value={curveInputs.inflation} onChange={(e) => setCurveInputs((p) => ({ ...p, inflation: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={curveInputs.inflation} onChange={(e) => setCurveInputs((p) => ({ ...p, inflation: e.target.value }))} className="bg-secondary" />
                     </div>
                   </div>
 
@@ -850,26 +680,12 @@ export function PolicyMarketHub({
                 <div className="glass rounded-2xl p-5">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">SIP vs RD vs FD</p>
-                    <Badge variant="secondary" className="bg-secondary/60">calculated</Badge>
+                    <Badge variant="secondary" className="bg-secondary">calculated</Badge>
                   </div>
 
                   <div className="mt-4 h-[22rem] md:h-[28rem]">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={curveResults.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="sipGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.7} />
-                            <stop offset="95%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.15} />
-                          </linearGradient>
-                          <linearGradient id="rdGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.7} />
-                            <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.15} />
-                          </linearGradient>
-                          <linearGradient id="fdGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(280, 70%, 60%)" stopOpacity={0.7} />
-                            <stop offset="95%" stopColor="hsl(280, 70%, 60%)" stopOpacity={0.15} />
-                          </linearGradient>
-                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                         <XAxis dataKey="year" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
                         <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} tickFormatter={(v) => formatCurrency(v)} />
@@ -877,7 +693,7 @@ export function PolicyMarketHub({
                           content={({ active, payload, label }) => {
                             if (!active || !payload || payload.length === 0) return null;
                             return (
-                              <div className="glass rounded-lg p-3 border border-border">
+                              <div className="rounded-lg p-3 border border-border bg-card">
                                 <p className="text-sm font-semibold text-foreground mb-2">Year: {label}</p>
                                 {payload.map((p) => (
                                   <p key={p.dataKey} className="text-sm" style={{ color: p.color }}>
@@ -890,9 +706,9 @@ export function PolicyMarketHub({
                         />
                         <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
 
-                        <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(217, 91%, 60%)" fill="url(#sipGradient)" strokeWidth={2} dot={false} isAnimationActive animationDuration={1200} />
-                        <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(160, 84%, 39%)" fill="url(#rdGradient)" strokeWidth={2} dot={false} isAnimationActive animationDuration={1300} />
-                        <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(280, 70%, 60%)" fill="url(#fdGradient)" strokeWidth={2} dot={false} isAnimationActive animationDuration={1400} />
+                        <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(217, 91%, 60%)" fill="hsl(217, 91%, 60%)" fillOpacity={0.15} strokeWidth={2} dot={false} isAnimationActive animationDuration={1200} />
+                        <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(160, 84%, 39%)" fill="hsl(160, 84%, 39%)" fillOpacity={0.15} strokeWidth={2} dot={false} isAnimationActive animationDuration={1300} />
+                        <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(280, 70%, 60%)" fill="hsl(280, 70%, 60%)" fillOpacity={0.12} strokeWidth={2} dot={false} isAnimationActive animationDuration={1400} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -913,31 +729,31 @@ export function PolicyMarketHub({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Age</Label>
-                      <Input value={insuranceInputs.age} onChange={(e) => setInsuranceInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.age} onChange={(e) => setInsuranceInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Dependents</Label>
-                      <Input value={insuranceInputs.dependents} onChange={(e) => setInsuranceInputs((p) => ({ ...p, dependents: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.dependents} onChange={(e) => setInsuranceInputs((p) => ({ ...p, dependents: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Annual income</Label>
-                      <Input value={insuranceInputs.annualIncome} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualIncome: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.annualIncome} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualIncome: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Annual expenses</Label>
-                      <Input value={insuranceInputs.annualExpenses} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualExpenses: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.annualExpenses} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualExpenses: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Liabilities</Label>
-                      <Input value={insuranceInputs.liabilities} onChange={(e) => setInsuranceInputs((p) => ({ ...p, liabilities: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.liabilities} onChange={(e) => setInsuranceInputs((p) => ({ ...p, liabilities: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Existing cover</Label>
-                      <Input value={insuranceInputs.currentCover} onChange={(e) => setInsuranceInputs((p) => ({ ...p, currentCover: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.currentCover} onChange={(e) => setInsuranceInputs((p) => ({ ...p, currentCover: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2 col-span-2">
                       <Label className="text-xs text-muted-foreground">Income replacement years</Label>
-                      <Input value={insuranceInputs.goalYears} onChange={(e) => setInsuranceInputs((p) => ({ ...p, goalYears: e.target.value }))} className="bg-secondary/30" />
+                      <Input value={insuranceInputs.goalYears} onChange={(e) => setInsuranceInputs((p) => ({ ...p, goalYears: e.target.value }))} className="bg-secondary" />
                     </div>
                   </div>
                 </div>
@@ -968,10 +784,10 @@ export function PolicyMarketHub({
                 <div className="glass rounded-2xl p-5">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">Policies affecting SIP, RD, FD, and hybrids</p>
-                    <Badge variant="secondary" className="bg-secondary/60">library</Badge>
+                    <Badge variant="secondary" className="bg-secondary">library</Badge>
                   </div>
 
-                  <div className="mt-3 overflow-hidden rounded-xl border border-border/60">
+                  <div className="mt-3 overflow-hidden rounded-xl border border-border">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -985,7 +801,7 @@ export function PolicyMarketHub({
                           <TableRow key={`${p.instrument}-${idx}`}>
                             <TableCell className="font-medium">{p.instrument}</TableCell>
                             <TableCell>
-                              <Badge variant="secondary" className="bg-secondary/60">{p.category}</Badge>
+                              <Badge variant="secondary" className="bg-secondary">{p.category}</Badge>
                             </TableCell>
                             <TableCell className="text-sm text-muted-foreground">{p.note}</TableCell>
                           </TableRow>
@@ -1002,7 +818,7 @@ export function PolicyMarketHub({
                     to extract trends and map them to instruments.
                   </p>
                   <Textarea
-                    className="mt-3 bg-secondary/30"
+                    className="mt-3 bg-secondary"
                     placeholder="Paste policy list text here..."
                     value={policyDocText}
                     onChange={(e) => setPolicyDocText(e.target.value)}
@@ -1032,7 +848,7 @@ export function PolicyMarketHub({
                     </div>
                   </div>
 
-                  <Button variant="outline" className="bg-card/40" onClick={() => toast.message("Next: connect real policy parser + shock model")}> 
+                  <Button variant="outline" className="bg-card" onClick={() => toast.message("Next: connect real policy parser + shock model")}> 
                     Roadmap
                   </Button>
                 </div>

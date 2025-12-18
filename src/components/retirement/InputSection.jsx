@@ -23,7 +23,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title = "Retire
   return (
     <div className={`glass rounded-2xl p-6 space-y-6 ${isComparison ? "border-accent/30" : ""}`}>
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl gradient-bg">
+        <div className="p-2 rounded-xl bg-primary">
           <Calculator className="w-5 h-5 text-primary-foreground" />
         </div>
         <h2 className="text-xl font-semibold text-foreground">{title}</h2>
@@ -82,7 +82,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title = "Retire
               type="text"
               value={inputs.monthlyInvestment.toLocaleString("en-IN")}
               onChange={handleMonthlyInvestmentChange}
-              className="pl-8 text-lg font-semibold h-12 bg-secondary/50"
+              className="pl-8 text-lg font-semibold h-12 bg-secondary"
             />
           </div>
           <p className="text-xs text-muted-foreground">₹1,000 - ₹1,00,000</p>
@@ -132,7 +132,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title = "Retire
         <div className="space-y-3">
           <Label className="text-sm font-medium text-muted-foreground">Investment Type</Label>
           <Tabs value={inputs.investmentType} onValueChange={(value) => updateInput("investmentType", value)}>
-            <TabsList className="grid w-full grid-cols-3 bg-secondary/50">
+            <TabsList className="grid w-full grid-cols-3 bg-secondary">
               <TabsTrigger value="sip" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <TrendingUp className="w-4 h-4" />
                 SIP
@@ -156,7 +156,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title = "Retire
 
         <Button 
           onClick={onCalculate} 
-          className="w-full h-12 text-lg font-semibold gradient-bg hover:opacity-90 transition-opacity"
+          className="w-full h-12 text-lg font-semibold"
         >
           <Calculator className="w-5 h-5 mr-2" />
           Calculate
