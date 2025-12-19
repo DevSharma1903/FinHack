@@ -49,12 +49,12 @@ export function ResultCards({ results, isComparison = false }) {
       {cards.map((card, index) => (
         <div
           key={card.title}
-          className={`glass rounded-2xl p-5 animate-fade-in ${isComparison ? "border-accent/30" : ""}`}
+          className={`glass-strong rounded-2xl p-5 animate-fade-in transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${isComparison ? "border-accent/50 glow-accent" : ""}`}
           style={{ animationDelay: `${index * 100}ms` }}
         >
           <div className="flex items-start justify-between mb-3">
-            <div className="p-2 rounded-xl bg-secondary border border-border">
-              <card.icon className="w-5 h-5 text-foreground" />
+            <div className="p-2 rounded-xl bg-primary/20 border border-primary/30 backdrop-blur-sm">
+              <card.icon className="w-5 h-5 text-primary" />
             </div>
             {card.subValue && typeof card.subValue === "string" && card.subValue.startsWith("+") && (
               <span className="text-sm font-semibold px-2 py-1 rounded-full border border-border">

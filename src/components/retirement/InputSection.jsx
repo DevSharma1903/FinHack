@@ -21,9 +21,9 @@ export function InputSection({ inputs, updateInput, onCalculate, title = "Retire
   };
 
   return (
-    <div className={`glass rounded-2xl p-6 space-y-6 ${isComparison ? "border-accent/30" : ""}`}>
+    <div className={`glass-strong rounded-2xl p-6 space-y-6 transition-all duration-300 ${isComparison ? "border-accent/50 glow-accent" : "hover:shadow-xl"}`}>
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-primary">
+        <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
           <Calculator className="w-5 h-5 text-primary-foreground" />
         </div>
         <h2 className="text-xl font-semibold text-foreground">{title}</h2>

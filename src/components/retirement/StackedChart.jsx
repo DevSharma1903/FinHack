@@ -65,13 +65,13 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               type="monotone"
               dataKey="principal"
               stackId="1"
-              stroke="hsl(217, 91%, 60%)"
-              fill="hsl(217, 91%, 60%)"
-              fillOpacity={0.25}
+              stroke="hsl(195, 100%, 65%)"
+              fill="hsl(195, 100%, 65%)"
+              fillOpacity={0.3}
               name="Principal (A)"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(217, 91%, 60%)" }}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(195, 100%, 75%)", fill: "hsl(195, 100%, 65%)" }}
               isAnimationActive
               animationDuration={1200}
               animationEasing="ease-out"
@@ -80,13 +80,13 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               type="monotone"
               dataKey="returns"
               stackId="1"
-              stroke="hsl(160, 84%, 39%)"
-              fill="hsl(160, 84%, 39%)"
-              fillOpacity={0.25}
+              stroke="hsl(142, 76%, 50%)"
+              fill="hsl(142, 76%, 50%)"
+              fillOpacity={0.3}
               name="Returns (A)"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(160, 84%, 39%)" }}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(142, 76%, 60%)", fill: "hsl(142, 76%, 50%)" }}
               isAnimationActive
               animationDuration={1400}
               animationEasing="ease-out"
@@ -98,13 +98,13 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   type="monotone"
                   dataKey="principalB"
                   stackId="2"
-                  stroke="hsl(280, 70%, 60%)"
-                  fill="hsl(280, 70%, 60%)"
-                  fillOpacity={0.18}
+                  stroke="hsl(250, 70%, 65%)"
+                  fill="hsl(250, 70%, 65%)"
+                  fillOpacity={0.25}
                   name="Principal (B)"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   dot={false}
-                  activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(280, 70%, 60%)" }}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(250, 70%, 75%)", fill: "hsl(250, 70%, 65%)" }}
                   isAnimationActive
                   animationDuration={1200}
                   animationEasing="ease-out"
@@ -113,13 +113,13 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   type="monotone"
                   dataKey="returnsB"
                   stackId="2"
-                  stroke="hsl(40, 90%, 50%)"
-                  fill="hsl(40, 90%, 50%)"
-                  fillOpacity={0.18}
+                  stroke="hsl(45, 100%, 55%)"
+                  fill="hsl(45, 100%, 55%)"
+                  fillOpacity={0.25}
                   name="Returns (B)"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   dot={false}
-                  activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(40, 90%, 50%)" }}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(45, 100%, 65%)", fill: "hsl(45, 100%, 55%)" }}
                   isAnimationActive
                   animationDuration={1400}
                   animationEasing="ease-out"

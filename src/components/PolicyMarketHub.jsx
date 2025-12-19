@@ -369,29 +369,29 @@ export function PolicyMarketHub({
 
       <CardContent>
         <Tabs value={tabValue} onValueChange={setTabValue}>
-          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-secondary">
+          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 glass p-1">
             {visibleTabs.includes("feeds") ? (
-              <TabsTrigger value="feeds" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="feeds" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Policy & News
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("curves") ? (
-              <TabsTrigger value="curves" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="curves" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Growth Curves
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("alerts") ? (
-              <TabsTrigger value="alerts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="alerts" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Alerts
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("insurance") ? (
-              <TabsTrigger value="insurance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="insurance" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Insurance
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("education") ? (
-              <TabsTrigger value="education" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Education
               </TabsTrigger>
             ) : null}
@@ -401,14 +401,14 @@ export function PolicyMarketHub({
             {isProduct ? (
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="lg:col-span-7 space-y-4">
-                  <div className="glass rounded-2xl p-5">
+                  <div className="glass-strong rounded-2xl p-5">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-foreground">Highlights</p>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-card">
+                        <Badge variant="outline" className="bg-card border-primary/30">
                           {matchingItems.length}
                         </Badge>
-                        <Badge variant="secondary" className="bg-secondary">
+                        <Badge variant="secondary" className="bg-secondary border-primary/20">
                           Updated: {formatDateMaybe(lastRefreshAtRef.current)}
                         </Badge>
                       </div>
@@ -419,7 +419,7 @@ export function PolicyMarketHub({
                         <p className="text-sm text-muted-foreground">No relevant policy signals detected yet.</p>
                       ) : (
                         matchingItems.slice(0, 10).map((item) => (
-                          <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4">
+                          <div key={`${item.feedId}:${item.id}`} className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <p className="text-sm font-medium text-foreground">{item.title}</p>
@@ -441,10 +441,10 @@ export function PolicyMarketHub({
                     </div>
                   </div>
 
-                  <div className="glass rounded-2xl p-5">
+                  <div className="glass-strong rounded-2xl p-5">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-foreground">Latest updates</p>
-                      <Badge variant="outline" className="bg-card">
+                      <Badge variant="outline" className="bg-card border-primary/30">
                         {feedItems.length}
                       </Badge>
                     </div>
@@ -453,7 +453,7 @@ export function PolicyMarketHub({
                         <p className="text-sm text-muted-foreground">Refresh to load updates.</p>
                       ) : (
                         feedItems.slice(0, 8).map((item) => (
-                          <div key={`${item.feedId}:${item.id}:latest`} className="glass rounded-2xl p-4">
+                          <div key={`${item.feedId}:${item.id}:latest`} className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <p className="text-sm font-medium text-foreground">{item.title}</p>
@@ -622,7 +622,7 @@ export function PolicyMarketHub({
           <TabsContent value="curves" className="mt-4">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div className="lg:col-span-5">
-                <div className="glass rounded-2xl p-5 space-y-4">
+                <div className="glass-strong rounded-2xl p-5 space-y-4">
                   <p className="text-sm font-semibold text-foreground">Curve inputs</p>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -660,27 +660,27 @@ export function PolicyMarketHub({
                   <Separator />
 
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="glass rounded-2xl p-4">
+                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
                       <p className="text-xs text-muted-foreground">SIP corpus</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.sip.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-primary">{formatCurrency(curveResults.sip.totalCorpus)}</p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
                       <p className="text-xs text-muted-foreground">RD corpus</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.rd.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-success">{formatCurrency(curveResults.rd.totalCorpus)}</p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
                       <p className="text-xs text-muted-foreground">FD corpus</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.fd.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-accent-foreground">{formatCurrency(curveResults.fd.totalCorpus)}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-7">
-                <div className="glass rounded-2xl p-5">
+                <div className="glass-strong rounded-2xl p-5">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">SIP vs RD vs FD</p>
-                    <Badge variant="secondary" className="bg-secondary">calculated</Badge>
+                    <Badge variant="secondary" className="bg-secondary border-primary/20">calculated</Badge>
                   </div>
 
                   <div className="mt-4 h-[22rem] md:h-[28rem]">
@@ -706,9 +706,9 @@ export function PolicyMarketHub({
                         />
                         <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
 
-                        <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(217, 91%, 60%)" fill="hsl(217, 91%, 60%)" fillOpacity={0.15} strokeWidth={2} dot={false} isAnimationActive animationDuration={1200} />
-                        <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(160, 84%, 39%)" fill="hsl(160, 84%, 39%)" fillOpacity={0.15} strokeWidth={2} dot={false} isAnimationActive animationDuration={1300} />
-                        <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(280, 70%, 60%)" fill="hsl(280, 70%, 60%)" fillOpacity={0.12} strokeWidth={2} dot={false} isAnimationActive animationDuration={1400} />
+                        <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(195, 100%, 65%)" fill="hsl(195, 100%, 65%)" fillOpacity={0.25} strokeWidth={3} dot={false} isAnimationActive animationDuration={1200} />
+                        <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(142, 76%, 50%)" fill="hsl(142, 76%, 50%)" fillOpacity={0.25} strokeWidth={3} dot={false} isAnimationActive animationDuration={1300} />
+                        <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(250, 70%, 65%)" fill="hsl(250, 70%, 65%)" fillOpacity={0.2} strokeWidth={3} dot={false} isAnimationActive animationDuration={1400} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>

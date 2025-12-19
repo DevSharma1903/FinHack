@@ -58,7 +58,7 @@ const Index = () => {
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">FinHack</h1>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">FinHack</h1>
               <p className="text-muted-foreground">Policy-aware simulations for SIP, FD, RD and retirement planning</p>
             </div>
 
@@ -89,23 +89,23 @@ const Index = () => {
 
         <div className="space-y-6">
           <Tabs value={activeSection} onValueChange={setActiveSection}>
-            <TabsList className="w-full flex flex-wrap gap-1 bg-secondary">
-              <TabsTrigger value="decoder" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsList className="w-full flex flex-wrap gap-1 glass p-1">
+              <TabsTrigger value="decoder" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Decoder
               </TabsTrigger>
-              <TabsTrigger value="retirement" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="retirement" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Retirement
               </TabsTrigger>
-              <TabsTrigger value="policy" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="policy" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Policy & News
               </TabsTrigger>
-              <TabsTrigger value="alerts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="alerts" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Alerts
               </TabsTrigger>
-              <TabsTrigger value="insurance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="insurance" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Insurance
               </TabsTrigger>
-              <TabsTrigger value="education" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Education
               </TabsTrigger>
             </TabsList>
