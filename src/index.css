@@ -4,89 +4,118 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
+    /* Light mode - Clean, professional, minimal */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 43 96% 56%;
+    /* Primary - Professional blue/cyan (no yellow) */
+    --primary: 200 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 220 14% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 0 0% 97%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 43 96% 56%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 200 100% 50%;
 
     --radius: 0.5rem;
 
-    --success: 160 84% 39%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5% 26%;
-    --sidebar-primary: 240 6% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 6% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 200 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 200 100% 50%;
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    /* Base colors - Monkeytype professional dark theme */
+    --background: 0 0% 10%;         /* #1a1a1a - Very dark gray, professional */
+    --foreground: 0 0% 95%;         /* #f2f2f2 - Clean white text */
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    /* Glassmorphism effect - Subtle and professional */
+    --glass-bg: rgba(26, 26, 26, 0.8);
+    --glass-border: rgba(60, 60, 60, 0.3);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    --glass-blur: blur(10px);
+    --glass-backdrop: brightness(1.1);
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    /* Surface colors - Clean, minimal */
+    --card: 0 0% 13%;               /* #212121 - Slightly lighter than background */
+    --card-foreground: 0 0% 95%;    /* High contrast text */
+    --popover: 0 0% 15%;            /* #262626 - Popup/dropdown backgrounds */
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 43 96% 56%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Professional cyan/blue (no yellow) */
+    --primary: 195 85% 55%;         /* #2dd4bf - Clean cyan, professional */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --primary-hover: 195 85% 50%;    /* Slightly darker on hover */
+    --primary-active: 195 85% 45%;   /* Even darker when active */
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Muted gray-blue */
+    --secondary: 210 20% 25%;       /* Muted blue-gray */
+    --secondary-foreground: 0 0% 95%;
+    --secondary-hover: 210 20% 30%;  /* Slightly lighter on hover */
+    --secondary-active: 210 20% 20%;  /* Even darker when active */
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    /* Muted/disabled text */
+    --muted: 0 0% 18%;              /* Subtle background for muted elements */
+    --muted-foreground: 0 0% 60%;   /* Medium gray for secondary text */
 
-    --accent: 240 4% 16%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent colors */
+    --accent: 0 0% 16%;             /* Slightly lighter than card */
+    --accent-foreground: 0 0% 95%;  /* Very light gray for text on accent */
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive actions */
+    --destructive: 0 65% 55%;       /* Muted red */
+    --destructive-foreground: 0 0% 100%;
+    --destructive-hover: 0 65% 50%;  /* Slightly darker on hover */
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 43 96% 56%;
+    /* UI elements */
+    --border: 0 0% 25%;             /* Subtle borders for depth */
+    --input: 0 0% 20%;              /* Input fields */
+    --ring: 195 85% 55%;           /* Focus ring uses primary color */
 
-    --success: 160 84% 39%;
+    /* Semantic colors */
+    --success: 142 71% 45%;         /* Clean green */
     --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;          /* Muted amber (not yellow) */
+    --warning-foreground: 0 0% 100%;
+    --error: 0 65% 55%;             /* Muted red */
+    --error-foreground: 0 0% 100%;
+    --info: 195 85% 55%;            /* Primary cyan */
+    --info-foreground: 0 0% 100%;
 
-    --sidebar-background: 240 6% 10%;
-    --sidebar-foreground: 240 5% 96%;
-    --sidebar-primary: 224 76% 48%;
+    /* Sidebar specific */
+    --sidebar-background: 0 0% 12%;  /* Slightly different from main bg */
+    --sidebar-foreground: 0 0% 85%;  /* Light gray text */
+    --sidebar-primary: 195 85% 55%;  /* Primary cyan for active items */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 16%;
-    --sidebar-accent-foreground: 240 5% 96%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 43 96% 56%;
+    --sidebar-accent: 0 0% 16%;     /* Hover state for sidebar items */
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 25%;     /* Subtle border for sidebar */
+    --sidebar-ring: 195 85% 55%;    /* Matches primary ring */
   }
 }
 
@@ -97,13 +126,62 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    background-color: hsl(var(--background));
+  }
+
+  /* Glassmorphism Effect */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur) var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-blur) var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 0.5rem;
+  }
+
+  /* Card styles */
+  .card {
+    @apply glass p-6 transition-all duration-200 ease-in-out;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary/10 text-secondary-foreground hover:bg-secondary/20 active:bg-secondary/30;
+  }
+
+  /* Input styles */
+  .input {
+    @apply bg-background/50 border border-border rounded-lg px-4 py-2 w-full 
+           focus:ring-2 focus:ring-primary focus:ring-opacity-50 focus:outline-none
+           transition-all duration-200 ease-in-out;
+  }
+
+  /* Sidebar styles */
+  .sidebar {
+    @apply glass p-4 border-r border-border h-screen sticky top-0 overflow-y-auto;
+  }
+
+  .sidebar-item {
+    @apply px-4 py-2 rounded-lg transition-colors duration-200 ease-in-out
+           hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary/10 text-primary border-l-4 border-primary;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-card border border-border;
+    @apply bg-card/50 border border-border/30 backdrop-blur-md;
   }
 
   .gradient-bg {
