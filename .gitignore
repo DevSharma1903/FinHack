@@ -25,10 +25,6 @@ venv/
 .env/
 *.log
 
-# ML Models
-*.pkl
-*.joblib
-
 # Editors
 .vscode/
 .idea/
