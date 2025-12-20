@@ -7,6 +7,7 @@ import { ComparisonToggle } from "@/components/retirement/ComparisonToggle";
 import { DetailedStats } from "@/components/retirement/DetailedStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PolicyMarketHub } from "@/components/PolicyMarketHub";
+import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -135,7 +136,7 @@ const Index = () => {
                 </Card>
               ) : null}
 
-              <PolicyMarketHub
+              <DecoderPolicyMarketHub
                 mode="product"
                 hideHeader
                 defaultTab="curves"
