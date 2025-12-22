@@ -1,32 +1,3 @@
-import type { FeedDefinition } from "@/lib/rss";
-
-export const defaultFeeds: FeedDefinition[] = [
-  {
-    id: "budget-tax",
-    title: "Budget / Tax updates (LTGC, slabs)",
-    url: "",
-    tags: ["budget", "tax", "ltcg"],
-  },
-  {
-    id: "parliament-bills",
-    title: "Parliament / Bills (finance, pensions, insurance)",
-    url: "",
-    tags: ["bill", "pension", "insurance"],
-  },
-  {
-    id: "epfo-labour",
-    title: "EPFO / Labour notifications (EPF, gratuity)",
-    url: "",
-    tags: ["epf", "gratuity", "labour"],
-  },
-  {
-    id: "sebi-updates",
-    title: "SEBI updates (mutual funds, market regulation)",
-    url: "",
-    tags: ["sebi", "mutual_funds", "sip"],
-  },
-];
-
 export const policyLibrarySeed = [
   { instrument: "SIP", category: "Tax", note: "Equity taxation rules (STCG/LTCG), holding period definitions" },
   { instrument: "SIP", category: "Regulatory", note: "SEBI MF regulations, disclosure norms, risk-o-meter" },
