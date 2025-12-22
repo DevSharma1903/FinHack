@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useRetirementCalculator } from "@/hooks/useRetirementCalculator";
 import { InputSection } from "@/components/retirement/InputSection";
 import { ResultCards } from "@/components/retirement/ResultCards";
@@ -29,21 +29,6 @@ const Index = () => {
   const [calculated, setCalculated] = useState(true);
   const [activeSection, setActiveSection] = useState("decoder");
   const [language, setLanguage] = useState("en");
-  const [latestInsight, setLatestInsight] = useState(null);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("pmh.latestInsight");
-      setLatestInsight(raw ? JSON.parse(raw) : null);
-    } catch {
-      setLatestInsight(null);
-    }
-  }, [activeSection]);
-
-  const policyImpactText = useMemo(() => {
-    if (!latestInsight?.message) return null;
-    return latestInsight.message;
-  }, [latestInsight]);
 
   const handleCalculate = () => {
     setCalculated(true);
@@ -97,12 +82,6 @@ const Index = () => {
               <TabsTrigger value="retirement" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Retirement
               </TabsTrigger>
-              <TabsTrigger value="policy" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Policy & News
-              </TabsTrigger>
-              <TabsTrigger value="alerts" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Alerts
-              </TabsTrigger>
               <TabsTrigger value="insurance" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Insurance
               </TabsTrigger>
@@ -114,28 +93,6 @@ const Index = () => {
 
           {activeSection === "decoder" ? (
             <div className="space-y-4">
-              {policyImpactText ? (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <CardTitle className="text-xl">Policy impact</CardTitle>
-                        <p className="mt-1 text-sm text-muted-foreground">Connected to latest RSS updates</p>
-                      </div>
-                      <Badge variant="secondary" className="bg-secondary">live</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-foreground">{policyImpactText}</p>
-                    {latestInsight?.title ? (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Source: {latestInsight.feedTitle} • {latestInsight.publishedAt || ""}
-                      </p>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              ) : null}
-
               <DecoderPolicyMarketHub
                 mode="product"
                 hideHeader
@@ -214,14 +171,6 @@ const Index = () => {
                 </div>
               </div>
             </div>
-          ) : null}
-
-          {activeSection === "policy" ? (
-            <PolicyMarketHub mode="product" hideHeader defaultTab="feeds" visibleTabs={["feeds"]} />
-          ) : null}
-
-          {activeSection === "alerts" ? (
-            <PolicyMarketHub mode="product" hideHeader defaultTab="alerts" visibleTabs={["alerts"]} />
           ) : null}
 
           {activeSection === "insurance" ? (
