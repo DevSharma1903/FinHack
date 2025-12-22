@@ -6,6 +6,10 @@ import joblib
 
 from utils.allocation import get_allocation
 from utils.projection import generate_projection 
+from utils.insurance_gap import insurance_gap_analysis
+from utils.insurance_bundle import recommend_insurance_bundle
+from utils.monte_carlo import mc_impact
+
 
 app=FastAPI()
 app.add_middleware(
@@ -24,6 +28,7 @@ saving_capacity_model = joblib.load("models/saving_capacity_model.pkl")
 risk_profile_model = joblib.load("models/risk_profile_model.pkl")
 le_savings = joblib.load("models/le_savings.pkl")
 le_allocation = joblib.load("models/le_allocation.pkl")
+insurance_model = joblib.load("models/model.pkl")
 
 class UserInput(BaseModel):
     Income: int 
@@ -74,4 +79,52 @@ def investment_graph(user: UserInput):
             "fd": round(fd_m, 2),
         },
         "yearly_projection": projection
+    }
+
+class InsuranceInput(BaseModel):
+    age: int
+    bmi: float
+    smoker: int
+    conditions: int
+    income: int
+    family_size: int
+    existing_cover: int
+    monthly_savings: int
+ 
+@app.post("/insurance-analysis")
+def insurance_analysis(user: InsuranceInput):
+    sample = pd.DataFrame([{
+    "Age": user.age,
+    "BMI": user.bmi,
+    "Smoker": user.smoker,
+    "Pre_Existing_Conditions": user.conditions,
+    "Annual_Income": user.income
+    }])
+
+    monthly_premium = float(insurance_model.predict(sample)[0])
+    annual_premium = float(monthly_premium * 12)
+
+    required, gap, status = insurance_gap_analysis(
+        user.income, user.family_size, user.existing_cover
+    )
+
+    bundle = recommend_insurance_bundle(
+        user.age, user.smoker, user.family_size, user.income
+    )
+
+    mean_sip, std_sip = mc_impact(
+        user.monthly_savings, annual_premium
+    )
+
+    return {
+        "insurance_status": status,
+        "required_cover": round(required),
+        "coverage_gap": round(gap),
+        "monthly_premium": round(monthly_premium),
+        "annual_premium": round(annual_premium),
+        "recommended_bundle": bundle,
+        "sip_impact": {
+            "mean_corpus": round(mean_sip),
+            "risk_range": round(std_sip)
+        }
     }
