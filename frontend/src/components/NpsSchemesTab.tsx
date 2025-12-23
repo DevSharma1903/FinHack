@@ -1,4 +1,5 @@
 import * as React from "react";
+import { parseISO, subMonths } from "date-fns";
 import {
   CartesianGrid,
   Legend,
@@ -34,6 +35,8 @@ type NavDataResponse = {
   schemes: SchemeSeries[];
 };
 
+type TimeRange = "all" | "12m" | "6m" | "1m";
+
 const COLORS = [
   "hsl(195, 100%, 65%)",
   "hsl(142, 76%, 50%)",
@@ -56,6 +59,45 @@ const COLORS = [
 function formatNav(value: unknown) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "-";
   return value.toFixed(4);
+}
+
+function parseSchemeId(id: string) {
+  const parts = id.split("_");
+  const pfm = parts[0] || "";
+  const scheme = parts[1] || "";
+  const tier = parts.slice(2).join("_") || "";
+  return { pfm, scheme, tier };
+}
+
+function filterPointsByRange(points: NavPoint[], range: TimeRange) {
+  if (range === "all") return points;
+  if (points.length === 0) return points;
+
+  const maxDate = parseISO(points[points.length - 1].date);
+  const cutoff =
+    range === "12m"
+      ? subMonths(maxDate, 12)
+      : range === "6m"
+        ? subMonths(maxDate, 6)
+        : subMonths(maxDate, 1);
+
+  return points.filter((p) => parseISO(p.date) >= cutoff);
+}
+
+function computeDomainFromValues(values: number[]) {
+  const finite = values.filter((v) => Number.isFinite(v));
+  if (finite.length === 0) return undefined;
+
+  const min = Math.min(...finite);
+  const max = Math.max(...finite);
+
+  if (min === max) {
+    const pad = Math.max(0.01, Math.abs(min) * 0.01);
+    return [min - pad, max + pad] as [number, number];
+  }
+
+  const pad = Math.max(0.01, (max - min) * 0.12);
+  return [min - pad, max + pad] as [number, number];
 }
 
 function mergeSchemesToChartData(schemes: SchemeSeries[]) {
@@ -105,8 +147,13 @@ export function NpsSchemesTab() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  const [singlePfm, setSinglePfm] = React.useState<string>("");
+  const [singleSchemeId, setSingleSchemeId] = React.useState<string>("");
+  const [singleRange, setSingleRange] = React.useState<TimeRange>("12m");
+
   const [leftId, setLeftId] = React.useState<string>("");
   const [rightId, setRightId] = React.useState<string>("");
+  const [compareRange, setCompareRange] = React.useState<TimeRange>("12m");
 
   React.useEffect(() => {
     let cancelled = false;
@@ -125,6 +172,13 @@ export function NpsSchemesTab() {
         setData(json);
 
         const ids = json.schemes.map((s) => s.id);
+        const pfms = Array.from(new Set(ids.map((id) => parseSchemeId(id).pfm))).sort();
+        const defaultPfm = pfms[0] || "";
+        setSinglePfm((prev) => prev || defaultPfm);
+
+        const defaultScheme = json.schemes.find((s) => parseSchemeId(s.id).pfm === defaultPfm)?.id || ids[0] || "";
+        setSingleSchemeId((prev) => prev || defaultScheme);
+
         setLeftId((prev) => prev || ids[0] || "");
         setRightId((prev) => prev || ids[1] || ids[0] || "");
       } catch (e: any) {
@@ -143,12 +197,45 @@ export function NpsSchemesTab() {
   }, []);
 
   const schemes = data?.schemes ?? [];
-  const chartData = React.useMemo(() => mergeSchemesToChartData(schemes), [schemes]);
+
+  const pfmOptions = React.useMemo(() => {
+    return Array.from(new Set(schemes.map((s) => parseSchemeId(s.id).pfm))).sort();
+  }, [schemes]);
+
+  const schemesForSelectedPfm = React.useMemo(() => {
+    return schemes
+      .filter((s) => parseSchemeId(s.id).pfm === singlePfm)
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [schemes, singlePfm]);
+
+  React.useEffect(() => {
+    if (!singlePfm) return;
+    if (schemesForSelectedPfm.some((s) => s.id === singleSchemeId)) return;
+    setSingleSchemeId(schemesForSelectedPfm[0]?.id || "");
+  }, [singlePfm, schemesForSelectedPfm, singleSchemeId]);
+
   const idToLabel = React.useMemo(() => {
     const m = new Map<string, string>();
     for (const s of schemes) m.set(s.id, s.label);
     return m;
   }, [schemes]);
+
+  const singleSeries = React.useMemo(() => {
+    return schemes.find((s) => s.id === singleSchemeId) || null;
+  }, [schemes, singleSchemeId]);
+
+  const singlePoints = React.useMemo(() => {
+    const pts = singleSeries?.points ?? [];
+    return filterPointsByRange(pts, singleRange);
+  }, [singleSeries, singleRange]);
+
+  const singleChartData = React.useMemo(() => {
+    return singlePoints.map((p) => ({ date: p.date, nav: p.nav }));
+  }, [singlePoints]);
+
+  const singleDomain = React.useMemo(() => {
+    return computeDomainFromValues(singlePoints.map((p) => p.nav));
+  }, [singlePoints]);
 
   const compareIds = React.useMemo(() => {
     const a = leftId;
@@ -156,13 +243,37 @@ export function NpsSchemesTab() {
     return { a, b };
   }, [leftId, rightId]);
 
+  const compareSeriesA = React.useMemo(() => schemes.find((s) => s.id === compareIds.a) || null, [schemes, compareIds.a]);
+  const compareSeriesB = React.useMemo(() => schemes.find((s) => s.id === compareIds.b) || null, [schemes, compareIds.b]);
+
+  const comparePointsA = React.useMemo(() => {
+    const pts = compareSeriesA?.points ?? [];
+    return filterPointsByRange(pts, compareRange);
+  }, [compareSeriesA, compareRange]);
+  const comparePointsB = React.useMemo(() => {
+    const pts = compareSeriesB?.points ?? [];
+    return filterPointsByRange(pts, compareRange);
+  }, [compareSeriesB, compareRange]);
+
+  const compareChartData = React.useMemo(() => {
+    if (!compareSeriesA || !compareSeriesB) return [];
+    return mergeSchemesToChartData([
+      { ...compareSeriesA, points: comparePointsA },
+      { ...compareSeriesB, points: comparePointsB },
+    ]);
+  }, [compareSeriesA, compareSeriesB, comparePointsA, comparePointsB]);
+
+  const compareDomain = React.useMemo(() => {
+    return computeDomainFromValues([...comparePointsA.map((p) => p.nav), ...comparePointsB.map((p) => p.nav)]);
+  }, [comparePointsA, comparePointsB]);
+
   return (
     <div className="space-y-6">
       <Card className="glass">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl">NPS NAV (Last 12 months)</CardTitle>
+          <CardTitle className="text-xl">NPS NAV</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Multi-scheme NAV history from your uploaded NPS NAV files.
+            Select a fund and scheme to view NAV history.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -174,37 +285,83 @@ export function NpsSchemesTab() {
           ) : null}
 
           {schemes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Fund</p>
+                <Select value={singlePfm} onValueChange={setSinglePfm}>
+                  <SelectTrigger className="border border-border bg-card">
+                    <SelectValue placeholder="Select fund" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pfmOptions.map((pfm) => (
+                      <SelectItem key={pfm} value={pfm}>
+                        {pfm.toUpperCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Scheme</p>
+                <Select value={singleSchemeId} onValueChange={setSingleSchemeId}>
+                  <SelectTrigger className="border border-border bg-card">
+                    <SelectValue placeholder="Select scheme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schemesForSelectedPfm.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Range</p>
+                <Select value={singleRange} onValueChange={(v) => setSingleRange(v as TimeRange)}>
+                  <SelectTrigger className="border border-border bg-card">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="12m">12 months</SelectItem>
+                    <SelectItem value="6m">6 months</SelectItem>
+                    <SelectItem value="1m">1 month</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : null}
+
+          {singleSeries && singleChartData.length > 0 ? (
             <div className="h-[22rem] md:h-[28rem]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <LineChart data={singleChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                   <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
                   <YAxis
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
                     tickFormatter={(v) => formatNav(v)}
                     width={64}
+                    domain={singleDomain as any}
+                    tickCount={6}
                   />
                   <Tooltip content={<NavTooltip />} />
-                  <Legend
-                    formatter={(value) => (
-                      <span className="text-sm text-foreground">{idToLabel.get(String(value)) || String(value)}</span>
-                    )}
-                  />
+                  <Legend formatter={() => <span className="text-sm text-foreground">{singleSeries.label}</span>} />
 
-                  {schemes.map((s, idx) => (
-                    <Line
-                      key={s.id}
-                      type="monotone"
-                      dataKey={s.id}
-                      name={s.label}
-                      stroke={COLORS[idx % COLORS.length]}
-                      strokeWidth={2.5}
-                      dot={false}
-                      connectNulls
-                      isAnimationActive
-                      animationDuration={800}
-                    />
-                  ))}
+                  <Line
+                    type="linear"
+                    dataKey="nav"
+                    name={singleSeries.label}
+                    stroke={COLORS[0]}
+                    strokeWidth={3}
+                    dot={false}
+                    connectNulls
+                    isAnimationActive
+                    animationDuration={800}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -217,7 +374,7 @@ export function NpsSchemesTab() {
           <CardTitle className="text-xl">Compare two schemes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">Scheme A</p>
               <Select value={leftId} onValueChange={setLeftId}>
@@ -249,24 +406,45 @@ export function NpsSchemesTab() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Range</p>
+              <Select value={compareRange} onValueChange={(v) => setCompareRange(v as TimeRange)}>
+                <SelectTrigger className="border border-border bg-card">
+                  <SelectValue placeholder="Select range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="12m">12 months</SelectItem>
+                  <SelectItem value="6m">6 months</SelectItem>
+                  <SelectItem value="1m">1 month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {compareIds.a && compareIds.b ? (
             <div className="h-[22rem] md:h-[28rem]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <LineChart data={compareChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                   <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
                   <YAxis
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
                     tickFormatter={(v) => formatNav(v)}
                     width={64}
+                    domain={compareDomain as any}
+                    tickCount={6}
                   />
                   <Tooltip content={<NavTooltip />} />
-                  <Legend formatter={(value) => <span className="text-sm text-foreground">{String(value)}</span>} />
+                  <Legend
+                    formatter={(value) => (
+                      <span className="text-sm text-foreground">{idToLabel.get(String(value)) || String(value)}</span>
+                    )}
+                  />
 
                   <Line
-                    type="monotone"
+                    type="linear"
                     dataKey={compareIds.a}
                     name={idToLabel.get(compareIds.a) || compareIds.a}
                     stroke={COLORS[0]}
@@ -277,7 +455,7 @@ export function NpsSchemesTab() {
                     animationDuration={800}
                   />
                   <Line
-                    type="monotone"
+                    type="linear"
                     dataKey={compareIds.b}
                     name={idToLabel.get(compareIds.b) || compareIds.b}
                     stroke={COLORS[2]}

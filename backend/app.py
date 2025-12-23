@@ -130,11 +130,6 @@ def _load_nps_nav_data() -> dict[str, Any]:
         df[nav_col] = pd.to_numeric(df[nav_col], errors="coerce")
         df = df.dropna(subset=[date_col, nav_col])
 
-        if not df.empty:
-            max_date = df[date_col].max()
-            cutoff = max_date - pd.DateOffset(months=12)
-            df = df[df[date_col] >= cutoff]
-
         df = df.sort_values(date_col)
 
         label = f"{_humanize_pfm(pfm)} – Scheme {scheme.upper()} {_tier_label(tier)}"
