@@ -8,6 +8,7 @@ import { DetailedStats } from "@/components/retirement/DetailedStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
+import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +88,9 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Education
+              </TabsTrigger>
+              <TabsTrigger value="npsSchemes" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+                NPS Schemes
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -180,13 +184,29 @@ const Index = () => {
           {activeSection === "education" ? (
             <PolicyMarketHub mode="product" hideHeader defaultTab="education" visibleTabs={["education"]} />
           ) : null}
+
+          {activeSection === "npsSchemes" ? (
+            <NpsSchemesTab />
+          ) : null}
         </div>
 
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-muted-foreground">
-          <p>
-            * Projections are based on assumed returns and may vary. Past performance does not guarantee future results.
-          </p>
+          <p className="text-xs text-gray-500 mt-2">
+      * Projections are based on assumed returns and may vary. Past performance does not guarantee future results.{" "}
+      NPS and other investment data displayed here are sourced from the official NPS Trust website{" "}
+      (<a
+        href="https://npstrust.org.in/weekly-snapshot-nps-schemes"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline"
+      >
+        npstrust.org.in/weekly-snapshot-nps-schemes
+      </a>
+      ) and were downloaded on a specific date; values may be outdated, incomplete, or contain errors. This tool is for
+      educational illustration only and should not be treated as accurate, real-time financial information or investment
+      advice.
+    </p>
         </div>
       </div>
     </div>
