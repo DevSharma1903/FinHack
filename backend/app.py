@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 import joblib
+import os
+import re
+from typing import Any
 
 from utils.allocation import get_allocation
 from utils.projection import generate_projection 
@@ -19,6 +22,145 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"status":"backend is running"}
+
+
+def _humanize_pfm(pfm: str) -> str:
+    mapping = {
+        "adityabirla": "Aditya Birla",
+        "axis": "Axis",
+        "dsp": "DSP",
+        "hdfc": "HDFC",
+    }
+    if pfm in mapping:
+        return mapping[pfm]
+    return pfm.replace("_", " ").title()
+
+
+def _tier_label(tier: str) -> str:
+    m = re.match(r"^tier(\d+)$", tier)
+    if not m:
+        return tier.replace("_", " ").title()
+    num = m.group(1)
+    if num == "1":
+        return "Tier I"
+    if num == "2":
+        return "Tier II"
+    return f"Tier {num}"
+
+
+def _detect_columns(df: pd.DataFrame) -> tuple[str, str]:
+    cols = [str(c).strip() for c in df.columns]
+    lowered = {c: c.lower() for c in cols}
+
+    date_candidates = [
+        "date of nav",
+        "nav date",
+        "date",
+    ]
+    nav_candidates = [
+        "nav value",
+        "nav",
+    ]
+
+    date_col = None
+    for cand in date_candidates:
+        for c in cols:
+            if lowered[c] == cand:
+                date_col = c
+                break
+        if date_col:
+            break
+    if not date_col:
+        for c in cols:
+            if "date" in lowered[c]:
+                date_col = c
+                break
+
+    nav_col = None
+    for cand in nav_candidates:
+        for c in cols:
+            if lowered[c] == cand:
+                nav_col = c
+                break
+        if nav_col:
+            break
+    if not nav_col:
+        for c in cols:
+            if "nav" in lowered[c] and ("value" in lowered[c] or lowered[c].strip() == "nav"):
+                nav_col = c
+                break
+    if not nav_col:
+        for c in cols:
+            if "nav" in lowered[c]:
+                nav_col = c
+                break
+
+    if not date_col or not nav_col:
+        raise ValueError(f"Could not detect required columns. Found columns: {cols}")
+
+    return date_col, nav_col
+
+
+def _load_nps_nav_data() -> dict[str, Any]:
+    base_dir = os.path.dirname(__file__)
+    data_dir = os.path.join(base_dir, "data", "nps")
+    if not os.path.isdir(data_dir):
+        return {"schemes": []}
+
+    schemes: list[dict[str, Any]] = []
+    for filename in os.listdir(data_dir):
+        if not filename.lower().endswith(".xls"):
+            continue
+
+        m = re.match(r"^(?P<pfm>[^_]+)_(?P<scheme>[^_]+)_(?P<tier>tier\d+)_last12m\.xls$", filename, re.IGNORECASE)
+        if not m:
+            continue
+
+        pfm = m.group("pfm").lower()
+        scheme = m.group("scheme").lower()
+        tier = m.group("tier").lower()
+        scheme_id = f"{pfm}_{scheme}_{tier}"
+
+        path = os.path.join(data_dir, filename)
+        df = pd.read_csv(path, sep="\t")
+        date_col, nav_col = _detect_columns(df)
+
+        df = df[[date_col, nav_col]].copy()
+        df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
+        df[nav_col] = pd.to_numeric(df[nav_col], errors="coerce")
+        df = df.dropna(subset=[date_col, nav_col])
+
+        if not df.empty:
+            max_date = df[date_col].max()
+            cutoff = max_date - pd.DateOffset(months=12)
+            df = df[df[date_col] >= cutoff]
+
+        df = df.sort_values(date_col)
+
+        label = f"{_humanize_pfm(pfm)} – Scheme {scheme.upper()} {_tier_label(tier)}"
+        points = [
+            {
+                "date": d.strftime("%Y-%m-%d"),
+                "nav": float(v),
+            }
+            for d, v in zip(df[date_col].dt.date, df[nav_col])
+        ]
+
+        schemes.append(
+            {
+                "id": scheme_id,
+                "label": label,
+                "points": points,
+            }
+        )
+
+    schemes.sort(key=lambda s: s["id"])
+    return {"schemes": schemes}
+
+
+@app.get("/api/nps/nav-data")
+def get_nps_nav_data():
+    return _load_nps_nav_data()
 
 saving_capacity_model = joblib.load("models/saving_capacity_model.pkl")
 risk_profile_model = joblib.load("models/risk_profile_model.pkl")

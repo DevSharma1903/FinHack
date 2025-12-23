@@ -8,6 +8,7 @@ import { DetailedStats } from "@/components/retirement/DetailedStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
+import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +88,9 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 Education
+              </TabsTrigger>
+              <TabsTrigger value="npsSchemes" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+                NPS Schemes
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -179,6 +183,10 @@ const Index = () => {
 
           {activeSection === "education" ? (
             <PolicyMarketHub mode="product" hideHeader defaultTab="education" visibleTabs={["education"]} />
+          ) : null}
+
+          {activeSection === "npsSchemes" ? (
+            <NpsSchemesTab />
           ) : null}
         </div>
 
