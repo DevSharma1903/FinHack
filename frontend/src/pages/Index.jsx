@@ -46,12 +46,12 @@ const Index = () => {
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">FinHack</h1>
-              <p className="text-muted-foreground">Policy-aware simulations for SIP, FD, RD and retirement planning</p>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">InvestSure</h1>
+              <p className="text-muted-foreground">Real time simulations for SIP, FD, RD and retirement planning</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <Select
+              {/* <Select
                 value={language}
                 onValueChange={(v) => {
                   setLanguage(v);
@@ -69,7 +69,7 @@ const Index = () => {
                   <SelectItem value="ta">Tamil</SelectItem>
                   <SelectItem value="bn">Bengali</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
               <ThemeToggle />
             </div>
           </div>
@@ -110,7 +110,7 @@ const Index = () => {
                   <CardTitle className="text-xl">Hybrid retirement scenarios</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <p className="text-sm text-muted-foreground">NPS + private term insurance + EPF/gratuity (UI ready; data connectors next).</p>
+                  <p className="text-sm text-muted-foreground">NPS + private term insurance + EPF/gratuity</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="bg-secondary">NPS</Badge>
                     <Badge variant="secondary" className="bg-secondary">Term insurance</Badge>

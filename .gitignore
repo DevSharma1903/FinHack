@@ -3,7 +3,6 @@
 .env
 .env.*
 
-
 # Frontend (Vite / React)
 node_modules/
 dist/
@@ -14,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+!frontend/.env
 
 # Backend (Python / FastAPI)
 __pycache__/
@@ -28,3 +28,13 @@ venv/
 # Editors
 .vscode/
 .idea/
+
+# Environment variables
+frontend/.env
+.env
+
+# Optional: ignore all .env files everywhere
+**/.env
+*.env.local
+*.env.development
+*.env.production
