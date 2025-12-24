@@ -321,22 +321,28 @@ def missed_payment_impact(user: MissedPaymentInput):
 
     sip_pct, rd_pct, fd_pct = get_allocation(sc, rp)
 
+    years = 10
+    months = years * 12
+
+    normal_schedule = [user.Income] * months
+    missed_schedule = [0 if i < user.Missed_Months else user.Income for i in range(months)]
+
     normal = generate_variable_projection(
-        [user.Income] * 12,
+        normal_schedule,
         expenses,
         sip_pct,
         rd_pct,
-        fd_pct
+        fd_pct,
+        years=1
     )
-
-    missed_schedule = [0 if i < user.Missed_Months else user.Income for i in range(12)]
 
     missed = generate_variable_projection(
         missed_schedule,
         expenses,
         sip_pct,
         rd_pct,
-        fd_pct
+        fd_pct,
+        years=1
     )
 
     return {
