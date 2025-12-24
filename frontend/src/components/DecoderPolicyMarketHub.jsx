@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+
+import { generateSipRdFdExplanation } from "@/lib/gemini";
 
 /* ================= helpers ================= */
 
@@ -52,8 +55,14 @@ export function DecoderPolicyMarketHub() {
     Miscellaneous: "",
   });
 
+  const [financialGoals, setFinancialGoals] = useState("");
+
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [aiExplanation, setAiExplanation] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const [ruralTab, setRuralTab] = useState("debtTrap");
   const [debtForm, setDebtForm] = useState({
@@ -120,6 +129,28 @@ export function DecoderPolicyMarketHub() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function getFinalValuesFromYearlyProjection(yearlyProjection) {
+    if (!Array.isArray(yearlyProjection) || yearlyProjection.length === 0) {
+      return { sip: 0, rd: 0, fd: 0 };
+    }
+    const last = yearlyProjection[yearlyProjection.length - 1] || {};
+    return {
+      sip: Number(last.sip) || 0,
+      rd: Number(last.rd) || 0,
+      fd: Number(last.fd) || 0,
+    };
+  }
+
+  function getRecommendedOptionFromProjection({ sip, rd, fd }) {
+    const entries = [
+      { key: "SIP", value: sip },
+      { key: "RD", value: rd },
+      { key: "FD", value: fd },
+    ];
+    entries.sort((a, b) => b.value - a.value);
+    return entries[0]?.key || "-";
+  }
+
   function updateDebt(key, value) {
     setDebtForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -150,6 +181,8 @@ export function DecoderPolicyMarketHub() {
   async function generate() {
     setLoading(true);
     setResult(null);
+    setAiExplanation("");
+    setAiError("");
 
     const payload = {};
     for (const key in form) {
@@ -173,6 +206,46 @@ export function DecoderPolicyMarketHub() {
       alert("Backend error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateAiExplanation() {
+    if (!result) return;
+
+    setAiLoading(true);
+    setAiError("");
+    setAiExplanation("");
+
+    try {
+      const finalValues = getFinalValuesFromYearlyProjection(result.yearly_projection);
+      const recommended = getRecommendedOptionFromProjection(finalValues);
+
+      const text = await generateSipRdFdExplanation({
+        userInputs: {
+          monthlyIncome: Number(form.Income) || 0,
+          monthlyInvestmentAmount: Number(result.monthly_savings) || 0,
+          monthlyAllocationSip: formatCurrency(Number(result.monthly_investment?.sip) || 0),
+          monthlyAllocationRd: formatCurrency(Number(result.monthly_investment?.rd) || 0),
+          monthlyAllocationFd: formatCurrency(Number(result.monthly_investment?.fd) || 0),
+          durationYears: Array.isArray(result.yearly_projection) ? result.yearly_projection.length : 10,
+          savingCapacity: result.saving_capacity,
+          riskProfile: result.risk_profile,
+          financialGoals,
+        },
+        calculationResults: {
+          sipValue: formatCurrency(finalValues.sip),
+          rdValue: formatCurrency(finalValues.rd),
+          fdValue: formatCurrency(finalValues.fd),
+        },
+        recommendedOption: recommended,
+      });
+
+      setAiExplanation(text);
+    } catch (err) {
+      console.error(err);
+      setAiError(err instanceof Error ? err.message : "Failed to generate explanation.");
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -336,12 +409,58 @@ export function DecoderPolicyMarketHub() {
               </div>
             </div>
 
+            <div className="glass rounded-2xl p-4 space-y-2">
+              <Label className="text-sm text-muted-foreground">Financial goals</Label>
+              <Textarea
+                value={financialGoals}
+                onChange={(e) => setFinancialGoals(e.target.value)}
+                placeholder="E.g., emergency fund in 2 years, child education, retirement, buy a home..."
+                className="bg-secondary"
+              />
+              <p className="text-xs text-muted-foreground">
+                This will be used to generate a personalized explanation (optional).
+              </p>
+            </div>
+
             <Button onClick={generate} disabled={loading}>
               {loading ? "Calculating..." : "Generate Investment Graph"}
             </Button>
 
             {result && (
               <>
+                {(() => {
+                  const finalValues = getFinalValuesFromYearlyProjection(result.yearly_projection);
+                  const recommended = getRecommendedOptionFromProjection(finalValues);
+                  return (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                      <Card>
+                        <CardContent className="pt-4">
+                          <p className="text-xs text-muted-foreground">Recommended option</p>
+                          <p className="text-lg font-semibold">{recommended}</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4">
+                          <p className="text-xs text-muted-foreground">SIP (final)</p>
+                          <p className="text-lg font-semibold">{formatCurrency(finalValues.sip)}</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4">
+                          <p className="text-xs text-muted-foreground">RD (final)</p>
+                          <p className="text-lg font-semibold">{formatCurrency(finalValues.rd)}</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-4">
+                          <p className="text-xs text-muted-foreground">FD (final)</p>
+                          <p className="text-lg font-semibold">{formatCurrency(finalValues.fd)}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid grid-cols-3 gap-4">
                   <Card>
                     <CardContent className="pt-4">
@@ -405,6 +524,41 @@ export function DecoderPolicyMarketHub() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
+
+                <Card className="glass">
+                  <CardContent className="pt-5 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold">AI explanation (Gemini)</p>
+                      <Button
+                        onClick={generateAiExplanation}
+                        disabled={aiLoading}
+                        variant="secondary"
+                        className="bg-secondary"
+                      >
+                        {aiLoading ? "Generating..." : "Generate explanation"}
+                      </Button>
+                    </div>
+
+                    {aiError ? (
+                      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+                        <p className="text-sm text-destructive">{aiError}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Make sure `VITE_GEMINI_API_KEY` is set in `frontend/.env` and restart the dev server.
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {aiExplanation ? (
+                      <div className="rounded-lg border border-border bg-card p-4">
+                        <p className="whitespace-pre-wrap text-sm text-foreground">{aiExplanation}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Click “Generate explanation” to see why SIP/RD/FD is recommended for your inputs.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               </>
             )}
           </>
