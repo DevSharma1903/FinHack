@@ -44,7 +44,7 @@ const Index = () => {
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">InvestSure</h1>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">Invest$ure</h1>
               <p className="text-muted-foreground">Real time simulations for SIP, FD, RD and retirement planning</p>
             </div>
 
