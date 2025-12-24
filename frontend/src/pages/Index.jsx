@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { NpsSchemesTab } from "@/components/NpsSchemesTab";
+import { EducationSection } from "@/components/EducationSection";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -182,7 +183,7 @@ const Index = () => {
           ) : null}
 
           {activeSection === "education" ? (
-            <PolicyMarketHub mode="product" hideHeader defaultTab="education" visibleTabs={["education"]} />
+            <EducationSection />
           ) : null}
 
           {activeSection === "npsSchemes" ? (
@@ -193,20 +194,20 @@ const Index = () => {
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-muted-foreground">
           <p className="text-xs text-gray-500 mt-2">
-      * Projections are based on assumed returns and may vary. Past performance does not guarantee future results.{" "}
-      NPS and other investment data displayed here are sourced from the official NPS Trust website{" "}
-      (<a
-        href="https://npstrust.org.in/weekly-snapshot-nps-schemes"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline"
-      >
-        npstrust.org.in/weekly-snapshot-nps-schemes
-      </a>
-      ) and were downloaded on a specific date; values may be outdated, incomplete, or contain errors. This tool is for
-      educational illustration only and should not be treated as accurate, real-time financial information or investment
-      advice.
-    </p>
+            * Projections are based on assumed returns and may vary. Past performance does not guarantee future results.{" "}
+            NPS and other investment data displayed here are sourced from the official NPS Trust website{" "}
+            (<a
+              href="https://npstrust.org.in/weekly-snapshot-nps-schemes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              npstrust.org.in/weekly-snapshot-nps-schemes
+            </a>
+            ) and were downloaded on a specific date; values may be outdated, incomplete, or contain errors. This tool is for
+            educational illustration only and should not be treated as accurate, real-time financial information or investment
+            advice.
+          </p>
         </div>
       </div>
     </div>

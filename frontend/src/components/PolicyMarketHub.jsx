@@ -368,6 +368,58 @@ export function PolicyMarketHub({
                         Interest is generally taxable as per your slab. Use post-tax return for comparisons, and remember TDS may apply.
                       </p>
                     </div>
+                    <div className="glass rounded-2xl p-4">
+                      <p className="text-sm font-medium text-foreground">SIP vs RD vs FD</p>
+                      <div className="mt-3 overflow-hidden">
+                        <Table>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="font-medium">Feature</TableCell>
+                              <TableCell>SIP</TableCell>
+                              <TableCell>RD</TableCell>
+                              <TableCell>FD</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Investment type</TableCell>
+                              <TableCell>Market-linked</TableCell>
+                              <TableCell>Bank deposit</TableCell>
+                              <TableCell>Bank deposit</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Risk</TableCell>
+                              <TableCell>Medium-High</TableCell>
+                              <TableCell>Low</TableCell>
+                              <TableCell>Very Low</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Returns</TableCell>
+                              <TableCell>Highest (long term)</TableCell>
+                              <TableCell>Medium</TableCell>
+                              <TableCell>Low</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Compounding</TableCell>
+                              <TableCell>Yes (strong)</TableCell>
+                              <TableCell>Limited</TableCell>
+                              <TableCell>Limited</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Best for</TableCell>
+                              <TableCell>Long-term goals</TableCell>
+                              <TableCell>Short-term savings</TableCell>
+                              <TableCell>Capital protection</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                      <div className="mt-3 text-sm text-muted-foreground">
+                        <p className="font-medium mb-2">Key Points:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>FD &gt; RD in returns if interest rate is the same and total invested amount is the same</li>
+                          <li>RD is better if you don't have a lump sum amount to invest</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
