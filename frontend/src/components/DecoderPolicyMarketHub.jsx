@@ -17,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+import { Info } from "lucide-react";
 
 import { generateSipRdFdExplanation } from "@/lib/gemini";
 
@@ -370,7 +373,29 @@ export function DecoderPolicyMarketHub() {
               {["Income", "Age", "Dependents", "Occupation", "City_Tier"].map(
                 (key) => (
                   <div key={key} className="space-y-1">
-                    <Label>{key.replace("_", " ")}</Label>
+                    {key === "Dependents" ? (
+                      <div className="flex items-center gap-1">
+                        <Label>Dependents</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                              aria-label="Dependents info"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-72">
+                            <p className="text-sm text-muted-foreground">
+                              Represents the number of people financially dependent on you.
+                            </p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    ) : (
+                      <Label>{key.replace("_", " ")}</Label>
+                    )}
                     <Input
                       value={form[key]}
                       onChange={(e) => update(key, e.target.value)}
@@ -631,7 +656,29 @@ export function DecoderPolicyMarketHub() {
                   "Zero_Income_Months",
                 ].map((key) => (
                   <div key={key} className="space-y-1">
-                    <Label>{key.replaceAll("_", " ")}</Label>
+                    {key === "Dependents" ? (
+                      <div className="flex items-center gap-1">
+                        <Label>Dependents</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                              aria-label="Dependents info"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-72">
+                            <p className="text-sm text-muted-foreground">
+                              Represents the number of people financially dependent on you.
+                            </p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    ) : (
+                      <Label>{key.replaceAll("_", " ")}</Label>
+                    )}
                     <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={key} />
                   </div>
                 ))}
@@ -713,7 +760,29 @@ export function DecoderPolicyMarketHub() {
               <div className="grid grid-cols-2 gap-4">
                 {["Income", "Age", "Dependents", "Occupation", "City_Tier", "Missed_Months"].map((key) => (
                   <div key={key} className="space-y-1">
-                    <Label>{key.replaceAll("_", " ")}</Label>
+                    {key === "Dependents" ? (
+                      <div className="flex items-center gap-1">
+                        <Label>Dependents</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                              aria-label="Dependents info"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-72">
+                            <p className="text-sm text-muted-foreground">
+                              Represents the number of people financially dependent on you.
+                            </p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    ) : (
+                      <Label>{key.replaceAll("_", " ")}</Label>
+                    )}
                     <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={key} />
                   </div>
                 ))}

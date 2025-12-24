@@ -11,8 +11,6 @@ import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { EducationSection } from "@/components/EducationSection";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
@@ -104,21 +102,6 @@ const Index = () => {
                 defaultTab="curves"
                 visibleTabs={["curves"]}
               />
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-xl">Hybrid retirement scenarios</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-sm text-muted-foreground">NPS + private term insurance + EPF/gratuity</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="bg-secondary">NPS</Badge>
-                    <Badge variant="secondary" className="bg-secondary">Term insurance</Badge>
-                    <Badge variant="secondary" className="bg-secondary">EPF</Badge>
-                    <Badge variant="secondary" className="bg-secondary">Gratuity</Badge>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           ) : null}
 

@@ -3,6 +3,7 @@ import { AreaChart, Area, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { policyLibrarySeed } from "@/lib/policyMarketData";
-import { clampNumber, computeInsuranceNeed } from "@/lib/insurance";
+import { clampNumber } from "@/lib/insurance";
 import { simulateInvestment } from "@/lib/investmentSim";
 
 function formatCurrency(value) {
@@ -37,15 +38,20 @@ export function PolicyMarketHub({
 
   const [tabValue, setTabValue] = useState(defaultTab);
 
-  const [insuranceInputs, setInsuranceInputs] = useLocalStorageState("pmh.insurance", {
+  const [insuranceForm, setInsuranceForm] = useLocalStorageState("pmh.insuranceAnalysis", {
     age: 28,
-    annualIncome: 1200000,
-    annualExpenses: 600000,
-    dependents: 2,
-    liabilities: 1500000,
-    currentCover: 5000000,
-    goalYears: 20,
+    bmi: 24,
+    smoker: 0,
+    conditions: 0,
+    income: 1200000,
+    family_size: 3,
+    existing_cover: 5000000,
+    monthly_savings: 20000,
   });
+
+  const [insuranceResult, setInsuranceResult] = useState(null);
+  const [insuranceLoading, setInsuranceLoading] = useState(false);
+  const [insuranceError, setInsuranceError] = useState("");
 
   const [curveInputs, setCurveInputs] = useLocalStorageState("pmh.curves", {
     years: 20,
@@ -87,17 +93,49 @@ export function PolicyMarketHub({
     return { sip, rd, fd, chartData };
   }, [curveInputs, isProduct]);
 
-  const insurance = useMemo(() => {
-    return computeInsuranceNeed({
-      age: clampNumber(insuranceInputs.age, 18, 70, 30),
-      annualIncome: clampNumber(insuranceInputs.annualIncome, 0, 100000000, 0),
-      annualExpenses: clampNumber(insuranceInputs.annualExpenses, 0, 100000000, 0),
-      dependents: clampNumber(insuranceInputs.dependents, 0, 10, 0),
-      liabilities: clampNumber(insuranceInputs.liabilities, 0, 1000000000, 0),
-      currentCover: clampNumber(insuranceInputs.currentCover, 0, 1000000000, 0),
-      goalYears: clampNumber(insuranceInputs.goalYears, 5, 40, 20),
-    });
-  }, [insuranceInputs]);
+  async function runInsuranceAnalysis() {
+    setInsuranceLoading(true);
+    setInsuranceError("");
+    setInsuranceResult(null);
+
+    const payload = {
+      age: clampNumber(insuranceForm.age, 0, 120, 28),
+      bmi: Number(insuranceForm.bmi) || 0,
+      smoker: clampNumber(insuranceForm.smoker, 0, 1, 0),
+      conditions: clampNumber(insuranceForm.conditions, 0, 1, 0),
+      income: clampNumber(insuranceForm.income, 0, 1000000000, 0),
+      family_size: clampNumber(insuranceForm.family_size, 1, 20, 1),
+      existing_cover: clampNumber(insuranceForm.existing_cover, 0, 10000000000, 0),
+      monthly_savings: clampNumber(insuranceForm.monthly_savings, 0, 100000000, 0),
+    };
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/insurance-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        let msg = `Request failed: ${res.status}`;
+        try {
+          const errJson = await res.json();
+          msg = typeof errJson?.detail === "string" ? errJson.detail : JSON.stringify(errJson);
+        } catch {
+          const errText = await res.text();
+          if (errText) msg = errText;
+        }
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      setInsuranceResult(data);
+    } catch (e) {
+      setInsuranceError(e instanceof Error ? e.message : "Failed to run insurance analysis");
+    } finally {
+      setInsuranceLoading(false);
+    }
+  }
 
   return (
     <Card className="glass">
@@ -234,9 +272,16 @@ export function PolicyMarketHub({
 
           <TabsContent value="insurance" className="mt-4">
             <div className="glass rounded-2xl p-5">
-              <p className="text-sm font-semibold text-foreground">Insurance needs calculator</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-foreground">Insurance analysis</p>
+                {insuranceResult?.insurance_status ? (
+                  <Badge variant="secondary" className="bg-secondary border-primary/20">
+                    {String(insuranceResult.insurance_status)}
+                  </Badge>
+                ) : null}
+              </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                This is implemented (local calculation + persistence). You can later connect premium quotes from insurers.
+                Uses your backend model to estimate premium, coverage gap, recommended bundle, and impact on SIP corpus.
               </p>
 
               <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -244,50 +289,90 @@ export function PolicyMarketHub({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Age</Label>
-                      <Input value={insuranceInputs.age} onChange={(e) => setInsuranceInputs((p) => ({ ...p, age: e.target.value }))} className="bg-secondary" />
+                      <Input value={insuranceForm.age} onChange={(e) => setInsuranceForm((p) => ({ ...p, age: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Dependents</Label>
-                      <Input value={insuranceInputs.dependents} onChange={(e) => setInsuranceInputs((p) => ({ ...p, dependents: e.target.value }))} className="bg-secondary" />
+                      <Label className="text-xs text-muted-foreground">BMI</Label>
+                      <Input value={insuranceForm.bmi} onChange={(e) => setInsuranceForm((p) => ({ ...p, bmi: e.target.value }))} className="bg-secondary" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Smoker (0/1)</Label>
+                      <Input value={insuranceForm.smoker} onChange={(e) => setInsuranceForm((p) => ({ ...p, smoker: e.target.value }))} className="bg-secondary" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Pre-existing conditions (0/1)</Label>
+                      <Input value={insuranceForm.conditions} onChange={(e) => setInsuranceForm((p) => ({ ...p, conditions: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Annual income</Label>
-                      <Input value={insuranceInputs.annualIncome} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualIncome: e.target.value }))} className="bg-secondary" />
+                      <Input value={insuranceForm.income} onChange={(e) => setInsuranceForm((p) => ({ ...p, income: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Annual expenses</Label>
-                      <Input value={insuranceInputs.annualExpenses} onChange={(e) => setInsuranceInputs((p) => ({ ...p, annualExpenses: e.target.value }))} className="bg-secondary" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Liabilities</Label>
-                      <Input value={insuranceInputs.liabilities} onChange={(e) => setInsuranceInputs((p) => ({ ...p, liabilities: e.target.value }))} className="bg-secondary" />
+                      <Label className="text-xs text-muted-foreground">Family size</Label>
+                      <Input value={insuranceForm.family_size} onChange={(e) => setInsuranceForm((p) => ({ ...p, family_size: e.target.value }))} className="bg-secondary" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Existing cover</Label>
-                      <Input value={insuranceInputs.currentCover} onChange={(e) => setInsuranceInputs((p) => ({ ...p, currentCover: e.target.value }))} className="bg-secondary" />
+                      <Input value={insuranceForm.existing_cover} onChange={(e) => setInsuranceForm((p) => ({ ...p, existing_cover: e.target.value }))} className="bg-secondary" />
                     </div>
-                    <div className="space-y-2 col-span-2">
-                      <Label className="text-xs text-muted-foreground">Income replacement years</Label>
-                      <Input value={insuranceInputs.goalYears} onChange={(e) => setInsuranceInputs((p) => ({ ...p, goalYears: e.target.value }))} className="bg-secondary" />
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Monthly savings</Label>
+                      <Input value={insuranceForm.monthly_savings} onChange={(e) => setInsuranceForm((p) => ({ ...p, monthly_savings: e.target.value }))} className="bg-secondary" />
                     </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-3">
+                    <Button onClick={runInsuranceAnalysis} disabled={insuranceLoading}>
+                      {insuranceLoading ? "Analyzing..." : "Run analysis"}
+                    </Button>
+                    {insuranceError ? <p className="text-sm text-destructive">{insuranceError}</p> : null}
                   </div>
                 </div>
 
                 <div className="lg:col-span-5">
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="glass rounded-2xl p-4">
-                      <p className="text-xs text-muted-foreground">Suggested new cover</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(insurance.recommendedCover)}</p>
+                  {insuranceResult ? (
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="glass rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground">Required cover</p>
+                        <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(Number(insuranceResult.required_cover) || 0)}</p>
+                      </div>
+                      <div className="glass rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground">Coverage gap</p>
+                        <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(Number(insuranceResult.coverage_gap) || 0)}</p>
+                      </div>
+                      <div className="glass rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground">Premium (monthly / annual)</p>
+                        <p className="mt-2 text-base font-semibold text-foreground">
+                          {formatCurrency(Number(insuranceResult.monthly_premium) || 0)} / {formatCurrency(Number(insuranceResult.annual_premium) || 0)}
+                        </p>
+                      </div>
+                      <div className="glass rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground">Recommended bundle</p>
+                        {Array.isArray(insuranceResult.recommended_bundle) && insuranceResult.recommended_bundle.length ? (
+                          <div className="mt-2 space-y-1">
+                            {insuranceResult.recommended_bundle.map((item, idx) => (
+                              <p key={`${item}-${idx}`} className="text-sm font-medium text-foreground">{String(item)}</p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-sm text-muted-foreground">-</p>
+                        )}
+                      </div>
+                      <div className="glass rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground">SIP impact (20Y Monte Carlo)</p>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Mean corpus: <span className="font-semibold text-foreground">{formatCurrency(Number(insuranceResult.sip_impact?.mean_corpus) || 0)}</span>
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Risk range (std dev): <span className="font-semibold text-foreground">{formatCurrency(Number(insuranceResult.sip_impact?.risk_range) || 0)}</span>
+                        </p>
+                      </div>
                     </div>
+                  ) : (
                     <div className="glass rounded-2xl p-4">
-                      <p className="text-xs text-muted-foreground">Coverage multiple</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{insurance.coverageMultiple.toFixed(1)}x</p>
+                      <p className="text-sm text-muted-foreground">Run analysis to see results.</p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
-                      <p className="text-xs text-muted-foreground">Recommendation</p>
-                      <p className="mt-2 text-base font-semibold text-foreground">{insurance.recommendation}</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
