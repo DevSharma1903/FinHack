@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const educationContent = [
   {
     title: "SIP vs RD vs FD",
-    emoji: "📊",
+    emoji: "",
     content: (
       <div className="space-y-4">
         <div className="overflow-x-auto">
@@ -59,7 +59,7 @@ const educationContent = [
   },
   {
     title: "How Your Returns Are Taxed Fixed Deposit (FD) & Recurring Deposit (RD)",
-    emoji: "🏦",
+    emoji: "",
     content: (
       <div className="space-y-3">
         <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
@@ -76,7 +76,7 @@ const educationContent = [
   },
   {
     title: "SIP in Mutual Funds",
-    emoji: "📈",
+    emoji: "",
     content: (
       <div className="space-y-4">
         <div>
@@ -99,7 +99,7 @@ const educationContent = [
   },
   {
     title: "Tax Saving Under Section 80C (Most Popular)",
-    emoji: "💰",
+    emoji: "",
     content: (
       <div className="space-y-3">
         <p className="text-muted-foreground">
@@ -121,7 +121,7 @@ const educationContent = [
   },
   {
     title: "RBI Monetary Policy (Why FD/RD Rates Change)",
-    emoji: "🏛️",
+    emoji: "",
     content: (
       <div className="space-y-3">
         <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
@@ -141,7 +141,7 @@ const educationContent = [
   },
   {
     title: "Insurance & Retirement-Oriented Policies",
-    emoji: "🛡️",
+    emoji: "",
     content: (
       <div className="space-y-3">
         <p className="text-muted-foreground">
@@ -160,7 +160,7 @@ const educationContent = [
   },
   {
     title: "Important Sections (Quick Guide)",
-    emoji: "📋",
+    emoji: "",
     content: (
       <div className="space-y-4">
         <div>
@@ -198,7 +198,7 @@ const educationContent = [
   },
   {
     title: "Simple Takeaway",
-    emoji: "✨",
+    emoji: "★",
     content: (
       <div className="space-y-3">
         <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
