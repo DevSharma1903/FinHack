@@ -28,3 +28,13 @@ venv/
 # Editors
 .vscode/
 .idea/
+
+# Environment variables
+frontend/.env
+.env
+
+# Optional: ignore all .env files everywhere
+**/.env
+*.env.local
+*.env.development
+*.env.production
