@@ -7,12 +7,22 @@ import os
 import re
 from typing import Any
 
+from models.schemas import (
+    UserInput,
+    VariableIncomeInput,
+    MissedPaymentInput,
+    DebtTrapInput,
+    InsuranceInput
+)
+
 from utils.allocation import get_allocation
 from utils.projection import generate_projection 
 from utils.insurance_gap import insurance_gap_analysis
 from utils.insurance_bundle import recommend_insurance_bundle
 from utils.monte_carlo import mc_impact
-
+from utils.rural_income import generate_variable_income_schedule
+from utils.rural_projection import generate_variable_projection
+from utils.debt_trap import detect_debt_trap
 
 app=FastAPI()
 app.add_middleware(
@@ -167,23 +177,12 @@ le_savings = joblib.load("models/le_savings.pkl")
 le_allocation = joblib.load("models/le_allocation.pkl")
 insurance_model = joblib.load("models/model.pkl")
 
-class UserInput(BaseModel):
-    Income: int 
-    Age: int
-    Dependents: int
-    Occupation: str
-    City_Tier: str
-    Rent: int
-    Loan_Repayment: int
-    Insurance: int
-    Groceries: int
-    Transport: int
-    Eating_Out: int
-    Entertainment: int
-    Utilities: int
-    Healthcare: int
-    Education: int
-    Miscellaneous: int
+ML_FEATURES = [
+    "Income", "Age", "Dependents", "Occupation", "City_Tier",
+    "Rent", "Loan_Repayment", "Insurance", "Groceries",
+    "Transport", "Eating_Out", "Entertainment",
+    "Utilities", "Healthcare", "Education", "Miscellaneous"
+]
 
 @app.post("/investment-graph")
 def investment_graph(user: UserInput):
@@ -218,16 +217,6 @@ def investment_graph(user: UserInput):
         "yearly_projection": projection
     }
 
-class InsuranceInput(BaseModel):
-    age: int
-    bmi: float
-    smoker: int
-    conditions: int
-    income: int
-    family_size: int
-    existing_cover: int
-    monthly_savings: int
- 
 @app.post("/insurance-analysis")
 def insurance_analysis(user: InsuranceInput):
     sample = pd.DataFrame([{
@@ -264,4 +253,123 @@ def insurance_analysis(user: InsuranceInput):
             "mean_corpus": round(mean_sip),
             "risk_range": round(std_sip)
         }
+    }
+
+
+@app.post("/investment-graph/variable-income")
+def variable_income_graph(user: VariableIncomeInput):
+    df = pd.DataFrame([user.dict()])
+    df_ml = df[ML_FEATURES]
+
+    sc = le_savings.inverse_transform(
+        saving_capacity_model.predict(df_ml)
+    )[0]
+    rp = le_allocation.inverse_transform(
+        risk_profile_model.predict(df_ml)
+    )[0]
+
+    expenses = df.drop(
+        columns=[
+            "Income", "Age", "Dependents", "Occupation",
+            "City_Tier", "Peak_Income", "Lean_Income",
+            "Zero_Income_Months"
+        ],
+        errors="ignore"
+    ).sum(axis=1).iloc[0]
+
+    income_schedule = generate_variable_income_schedule(
+        user.Peak_Income,
+        user.Lean_Income,
+        user.Zero_Income_Months
+    )
+
+    sip_pct, rd_pct, fd_pct = get_allocation(sc, rp)
+
+    projection = generate_variable_projection(
+        income_schedule,
+        expenses,
+        sip_pct,
+        rd_pct,
+        fd_pct
+    )
+
+    return {
+        "saving_capacity": sc,
+        "risk_profile": rp,
+        "yearly_projection": projection
+    }
+
+@app.post("/investment-graph/missed-payments")
+def missed_payment_impact(user: MissedPaymentInput):
+    df = pd.DataFrame([user.dict()])
+    df_ml = df[ML_FEATURES]
+
+    sc = le_savings.inverse_transform(
+        saving_capacity_model.predict(df_ml)
+    )[0]
+    rp = le_allocation.inverse_transform(
+        risk_profile_model.predict(df_ml)
+    )[0]
+
+    expenses = df.drop(
+        columns=[
+            "Income", "Age", "Dependents", "Occupation",
+            "City_Tier", "Missed_Months"
+        ],
+        errors="ignore"
+    ).sum(axis=1).iloc[0]
+
+    sip_pct, rd_pct, fd_pct = get_allocation(sc, rp)
+
+    years = 10
+    months = years * 12
+
+    normal_schedule = [user.Income] * months
+    missed_schedule = [0 if i < user.Missed_Months else user.Income for i in range(months)]
+
+    normal = generate_variable_projection(
+        normal_schedule,
+        expenses,
+        sip_pct,
+        rd_pct,
+        fd_pct,
+        years=1
+    )
+
+    missed = generate_variable_projection(
+        missed_schedule,
+        expenses,
+        sip_pct,
+        rd_pct,
+        fd_pct,
+        years=1
+    )
+
+    return {
+        "missed_months": user.Missed_Months,
+        "normal_projection": normal,
+        "missed_projection": missed
+    }
+
+
+@app.post("/debt-trap")
+def debt_trap_check(data: DebtTrapInput):
+    income_schedule = generate_variable_income_schedule(
+        data.Peak_Income,
+        data.Lean_Income,
+        data.Zero_Income_Months
+    )
+
+    min_income = min([i for i in income_schedule if i > 0], default=0)
+
+    flag, reasons = detect_debt_trap(
+        emi=data.Loan_Repayment,
+        min_income=min_income,
+        loan_interest=data.Loan_Interest
+    )
+
+    return {
+        "debt_trap": flag,
+        "reasons": reasons,
+        "min_income_used": min_income
     }
