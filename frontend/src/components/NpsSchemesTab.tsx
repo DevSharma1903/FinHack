@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useI18n } from "@/i18n/i18n";
 
 type NavPoint = {
   date: string;
@@ -125,12 +126,12 @@ function mergeSchemesToChartData(schemes: SchemeSeries[]) {
   });
 }
 
-const NavTooltip = ({ active, payload, label }: any) => {
+const NavTooltip = ({ active, payload, label, t }: any) => {
   if (!active || !payload || payload.length === 0) return null;
 
   return (
     <div className="rounded-lg p-3 border border-border bg-card">
-      <p className="text-sm font-semibold text-foreground mb-2">Date: {label}</p>
+      <p className="text-sm font-semibold text-foreground mb-2">{t ? t("Date:") : "Date:"} {label}</p>
       {payload
         .filter((p: any) => p.value !== null && p.value !== undefined)
         .map((p: any) => (
@@ -143,6 +144,8 @@ const NavTooltip = ({ active, payload, label }: any) => {
 };
 
 export function NpsSchemesTab() {
+  const { t } = useI18n();
+
   const [data, setData] = React.useState<NavDataResponse | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -183,7 +186,7 @@ export function NpsSchemesTab() {
         setRightId((prev) => prev || ids[1] || ids[0] || "");
       } catch (e: any) {
         if (cancelled) return;
-        setError(e?.message || "Failed to load NPS NAV data");
+        setError(e?.message || t("Failed to load NPS NAV data"));
         setData(null);
       } finally {
         if (!cancelled) setLoading(false);
@@ -271,26 +274,26 @@ export function NpsSchemesTab() {
     <div className="space-y-6">
       <Card className="glass">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl">NPS NAV</CardTitle>
+          <CardTitle className="text-xl">{t("NPS NAV")}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Select a fund and scheme to view NAV history.
+            {t("Select a fund and scheme to view NAV history.")}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {loading ? <p className="text-sm text-muted-foreground">Loading...</p> : null}
+          {loading ? <p className="text-sm text-muted-foreground">{t("Loading...")}</p> : null}
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
           {!loading && !error && schemes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No scheme data found.</p>
+            <p className="text-sm text-muted-foreground">{t("No scheme data found.")}</p>
           ) : null}
 
           {schemes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Fund</p>
+                <p className="text-xs text-muted-foreground">{t("Fund")}</p>
                 <Select value={singlePfm} onValueChange={setSinglePfm}>
                   <SelectTrigger className="border border-border bg-card">
-                    <SelectValue placeholder="Select fund" />
+                    <SelectValue placeholder={t("Select fund")} />
                   </SelectTrigger>
                   <SelectContent>
                     {pfmOptions.map((pfm) => (
@@ -303,10 +306,10 @@ export function NpsSchemesTab() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Scheme</p>
+                <p className="text-xs text-muted-foreground">{t("Scheme")}</p>
                 <Select value={singleSchemeId} onValueChange={setSingleSchemeId}>
                   <SelectTrigger className="border border-border bg-card">
-                    <SelectValue placeholder="Select scheme" />
+                    <SelectValue placeholder={t("Select scheme")} />
                   </SelectTrigger>
                   <SelectContent>
                     {schemesForSelectedPfm.map((s) => (
@@ -319,16 +322,16 @@ export function NpsSchemesTab() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Range</p>
+                <p className="text-xs text-muted-foreground">{t("Range")}</p>
                 <Select value={singleRange} onValueChange={(v) => setSingleRange(v as TimeRange)}>
                   <SelectTrigger className="border border-border bg-card">
-                    <SelectValue placeholder="Select range" />
+                    <SelectValue placeholder={t("Select range")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="12m">12 months</SelectItem>
-                    <SelectItem value="6m">6 months</SelectItem>
-                    <SelectItem value="1m">1 month</SelectItem>
+                    <SelectItem value="all">{t("All")}</SelectItem>
+                    <SelectItem value="12m">{t("12 months")}</SelectItem>
+                    <SelectItem value="6m">{t("6 months")}</SelectItem>
+                    <SelectItem value="1m">{t("1 month")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -348,7 +351,7 @@ export function NpsSchemesTab() {
                     domain={singleDomain as any}
                     tickCount={6}
                   />
-                  <Tooltip content={<NavTooltip />} />
+                  <Tooltip content={<NavTooltip t={t} />} />
                   <Legend formatter={() => <span className="text-sm text-foreground">{singleSeries.label}</span>} />
 
                   <Line
@@ -371,15 +374,15 @@ export function NpsSchemesTab() {
 
       <Card className="glass">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl">Compare two schemes</CardTitle>
+          <CardTitle className="text-xl">{t("Compare two schemes")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Scheme A</p>
+              <p className="text-xs text-muted-foreground">{t("Scheme A")}</p>
               <Select value={leftId} onValueChange={setLeftId}>
                 <SelectTrigger className="border border-border bg-card">
-                  <SelectValue placeholder="Select scheme" />
+                  <SelectValue placeholder={t("Select scheme")} />
                 </SelectTrigger>
                 <SelectContent>
                   {schemes.map((s) => (
@@ -392,10 +395,10 @@ export function NpsSchemesTab() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Scheme B</p>
+              <p className="text-xs text-muted-foreground">{t("Scheme B")}</p>
               <Select value={rightId} onValueChange={setRightId}>
                 <SelectTrigger className="border border-border bg-card">
-                  <SelectValue placeholder="Select scheme" />
+                  <SelectValue placeholder={t("Select scheme")} />
                 </SelectTrigger>
                 <SelectContent>
                   {schemes.map((s) => (
@@ -408,16 +411,16 @@ export function NpsSchemesTab() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Range</p>
+              <p className="text-xs text-muted-foreground">{t("Range")}</p>
               <Select value={compareRange} onValueChange={(v) => setCompareRange(v as TimeRange)}>
                 <SelectTrigger className="border border-border bg-card">
-                  <SelectValue placeholder="Select range" />
+                  <SelectValue placeholder={t("Select range")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="12m">12 months</SelectItem>
-                  <SelectItem value="6m">6 months</SelectItem>
-                  <SelectItem value="1m">1 month</SelectItem>
+                  <SelectItem value="all">{t("All")}</SelectItem>
+                  <SelectItem value="12m">{t("12 months")}</SelectItem>
+                  <SelectItem value="6m">{t("6 months")}</SelectItem>
+                  <SelectItem value="1m">{t("1 month")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -436,7 +439,7 @@ export function NpsSchemesTab() {
                     domain={compareDomain as any}
                     tickCount={6}
                   />
-                  <Tooltip content={<NavTooltip />} />
+                  <Tooltip content={<NavTooltip t={t} />} />
                   <Legend
                     formatter={(value) => (
                       <span className="text-sm text-foreground">{idToLabel.get(String(value)) || String(value)}</span>
@@ -469,7 +472,7 @@ export function NpsSchemesTab() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Select two schemes to compare.</p>
+            <p className="text-sm text-muted-foreground">{t("Select two schemes to compare.")}</p>
           )}
         </CardContent>
       </Card>

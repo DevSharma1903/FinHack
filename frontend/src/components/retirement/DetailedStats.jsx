@@ -1,5 +1,6 @@
 import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n/i18n";
 
 const formatCurrency = (value) => {
   if (typeof value !== "number" || !Number.isFinite(value)) return "-";
@@ -46,25 +47,27 @@ function StatItem({ label, value, hint }) {
 }
 
 export function DetailedStats({ results }) {
+  const { t } = useI18n();
+
   if (!results) return null;
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-      <StatItem label="Assumed return" value={typeof results.expectedReturn === "number" ? `${results.expectedReturn}%` : "-"} />
-      <StatItem label="Assumed inflation" value={typeof results.inflation === "number" ? `${results.inflation}%` : "-"} />
+      <StatItem label={t("Assumed return")} value={typeof results.expectedReturn === "number" ? `${results.expectedReturn}%` : "-"} />
+      <StatItem label={t("Assumed inflation")} value={typeof results.inflation === "number" ? `${results.inflation}%` : "-"} />
       <StatItem
-        label="Real return assumption"
+        label={t("Real return assumption")}
         value={formatPercent(results.realReturnAssumptionPercent)}
-        hint="Return assumption after inflation (Fisher approximation)."
+        hint={t("Return assumption after inflation (Fisher approximation).")}
       />
 
-      <StatItem label="Years to retirement" value={`${results.years ?? "-"}`} />
-      <StatItem label="Total contributions" value={formatCurrency(results.totalInvested)} />
-      <StatItem label="Wealth multiplier" value={results.wealthMultiplier ? `${results.wealthMultiplier.toFixed(2)}x` : "-"} />
+      <StatItem label={t("Years to retirement")} value={`${results.years ?? "-"}`} />
+      <StatItem label={t("Total contributions")} value={formatCurrency(results.totalInvested)} />
+      <StatItem label={t("Wealth multiplier")} value={results.wealthMultiplier ? `${results.wealthMultiplier.toFixed(2)}x` : "-"} />
 
-      <StatItem label="Nominal IRR (annual)" value={formatPercent(results.irrAnnualPercent)} hint="Estimated internal rate of return based on cashflows." />
-      <StatItem label="Real IRR (annual)" value={formatPercent(results.realIrrAnnualPercent)} hint="Nominal IRR adjusted for inflation." />
-      <StatItem label="Inflation-adjusted corpus" value={formatCurrency(results.inflationAdjusted)} />
+      <StatItem label={t("Nominal IRR (annual)")} value={formatPercent(results.irrAnnualPercent)} hint={t("Estimated internal rate of return based on cashflows.")} />
+      <StatItem label={t("Real IRR (annual)")} value={formatPercent(results.realIrrAnnualPercent)} hint={t("Nominal IRR adjusted for inflation.")} />
+      <StatItem label={t("Inflation-adjusted corpus")} value={formatCurrency(results.inflationAdjusted)} />
     </div>
   );
 }

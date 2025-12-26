@@ -6,12 +6,13 @@ import { StackedChart } from "@/components/retirement/StackedChart";
 import { ComparisonToggle } from "@/components/retirement/ComparisonToggle";
 import { DetailedStats } from "@/components/retirement/DetailedStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { EducationSection } from "@/components/EducationSection";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trans, useI18n } from "@/i18n/i18n";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -28,12 +29,12 @@ const Index = () => {
 
   const [calculated, setCalculated] = useState(true);
   const [activeSection, setActiveSection] = useState("decoder");
-  const [language, setLanguage] = useState("en");
+  const { t, language, isTranslating } = useI18n();
 
   const handleCalculate = () => {
     setCalculated(true);
-    toast.success("Calculation updated!", {
-      description: `Your projected corpus is ₹${(results.totalCorpus / 10000000).toFixed(2)} Cr`,
+    toast.success(t("Calculation updated!"), {
+      description: t(`Your projected corpus is ₹${(results.totalCorpus / 10000000).toFixed(2)} Cr`),
     });
   };
 
@@ -45,10 +46,11 @@ const Index = () => {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2 gradient-text">Invest$ure</h1>
-              <p className="text-muted-foreground">Real time simulations for SIP, FD, RD and retirement planning</p>
+              <p className="text-muted-foreground"><Trans>Real time simulations for SIP, FD, RD and retirement planning</Trans></p>
             </div>
 
             <div className="flex items-center gap-2">
+              <LanguageSelector />
               {/* <Select
                 value={language}
                 onValueChange={(v) => {
@@ -68,6 +70,9 @@ const Index = () => {
                   <SelectItem value="bn">Bengali</SelectItem>
                 </SelectContent>
               </Select> */}
+              {isTranslating && language !== "en" ? (
+                <p className="hidden md:block text-xs text-muted-foreground">{t("Translating...")}</p>
+              ) : null}
               <ThemeToggle />
             </div>
           </div>
@@ -77,19 +82,19 @@ const Index = () => {
           <Tabs value={activeSection} onValueChange={setActiveSection}>
             <TabsList className="w-full flex flex-wrap gap-1 glass p-1">
               <TabsTrigger value="decoder" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Decoder
+                <Trans>Decoder</Trans>
               </TabsTrigger>
               <TabsTrigger value="retirement" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Retirement
+                <Trans>Retirement</Trans>
               </TabsTrigger>
               <TabsTrigger value="insurance" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Insurance
+                <Trans>Insurance</Trans>
               </TabsTrigger>
               <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Education
+                <Trans>Education</Trans>
               </TabsTrigger>
               <TabsTrigger value="npsSchemes" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                NPS Schemes
+                <Trans>NPS Schemes</Trans>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -113,14 +118,14 @@ const Index = () => {
                 {/* Left Section - Inputs */}
                 <div className="lg:col-span-5">
                   <div className={showComparison ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : "space-y-4"}>
-                    <InputSection inputs={inputs} updateInput={updateInput} onCalculate={handleCalculate} title="Scenario A" />
+                    <InputSection inputs={inputs} updateInput={updateInput} onCalculate={handleCalculate} title={t("Scenario A")} />
 
                     {showComparison && (
                       <InputSection
                         inputs={comparisonInputs}
                         updateInput={updateComparisonInput}
                         onCalculate={handleCalculate}
-                        title="Scenario B"
+                        title={t("Scenario B")}
                         isComparison
                       />
                     )}
@@ -134,7 +139,7 @@ const Index = () => {
                       <div className={showComparison ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : "space-y-4"}>
                         <div className="space-y-2">
                           <h3 className="text-sm font-medium text-muted-foreground px-1">
-                            {showComparison ? "Scenario A Results" : "Your Results"}
+                            {showComparison ? t("Scenario A Results") : t("Your Results")}
                           </h3>
                           <ResultCards results={results} />
                           <DetailedStats results={results} />
@@ -142,7 +147,7 @@ const Index = () => {
 
                         {showComparison && (
                           <div className="space-y-2">
-                            <h3 className="text-sm font-medium text-muted-foreground px-1">Scenario B Results</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Scenario B Results")}</h3>
                             <ResultCards results={comparisonResults} isComparison />
                             <DetailedStats results={comparisonResults} />
                           </div>
