@@ -1,8 +1,9 @@
-**Team Contributions**
-Dev Sharma: Frontend & API Integration
-Ananyaraj Shekhar: ML Models & Presentation
-Srijan Sharma: ML Models, Presentation & Features
-Praket Reddy: Backend & Features
+## 👥 Team Contributions
+
+- **Dev Sharma**: Frontend & API Integration  
+- **Ananyaraj Shekhar**: ML Models & Presentation  
+- **Srijan Sharma**: ML Models, Presentation & Features  
+- **Praket Reddy**: Backend & Features  
 
 
 **Running Frontend**
