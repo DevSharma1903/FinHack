@@ -1,3 +1,10 @@
+**Team Contributions**
+Dev Sharma: Frontend & API Integration
+Ananyaraj Shekhar: ML Models & Presentation
+Srijan Sharma: ML Models, Presentation & Features
+Praket Reddy: Backend & Features
+
+
 **Running Frontend**
 ```bash
 # Step 1: Go to frontend folder
