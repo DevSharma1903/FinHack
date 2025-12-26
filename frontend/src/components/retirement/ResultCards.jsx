@@ -1,5 +1,6 @@
 import { TrendingUp, Wallet, PiggyBank, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n/i18n";
 
 const formatCurrency = (value) => {
   if (value >= 10000000) {
@@ -15,30 +16,32 @@ const formatCurrency = (value) => {
 };
 
 export function ResultCards({ results, isComparison = false }) {
+  const { t } = useI18n();
+
   const returnPct = typeof results.returnPercentage === "number" && Number.isFinite(results.returnPercentage)
     ? results.returnPercentage
     : null;
 
   const cards = [
     {
-      title: "Total Corpus",
+      title: t("Total Corpus"),
       value: results.totalCorpus,
       subValue: results.inflationAdjusted,
-      subLabel: "Inflation adjusted",
+      subLabel: t("Inflation adjusted"),
       icon: TrendingUp,
       textColor: "text-primary",
     },
     {
-      title: "Investment Amount",
+      title: t("Investment Amount"),
       value: results.totalInvested,
       icon: Wallet,
       textColor: "text-foreground",
     },
     {
-      title: "Returns Earned",
+      title: t("Returns Earned"),
       value: results.returnsEarned,
       subValue: returnPct === null ? null : `+${returnPct.toFixed(1)}%`,
-      subLabel: "gain",
+      subLabel: t("gain"),
       icon: PiggyBank,
       textColor: "text-accent",
     },
@@ -75,7 +78,7 @@ export function ResultCards({ results, isComparison = false }) {
                   <Info className="w-3 h-3 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Value adjusted for {card.subLabel}</p>
+                  <p>{t("Value adjusted for")} {card.subLabel}</p>
                 </TooltipContent>
               </Tooltip>
               <p className="text-xs text-muted-foreground">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   AreaChart,
   Area,
@@ -22,6 +22,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Info } from "lucide-react";
 
 import { generateSipRdFdExplanation } from "@/lib/gemini";
+import { useI18n } from "@/i18n/i18n";
+import { translateText } from "@/services/translate";
 
 /* ================= helpers ================= */
 
@@ -37,6 +39,8 @@ function formatCurrency(value) {
 /* ================= component ================= */
 
 export function DecoderPolicyMarketHub() {
+  const { t, language } = useI18n();
+
   const [isRural, setIsRural] = useState(false);
   const [form, setForm] = useState({
     Income: "",
@@ -64,8 +68,12 @@ export function DecoderPolicyMarketHub() {
   const [loading, setLoading] = useState(false);
 
   const [aiExplanation, setAiExplanation] = useState("");
+  const [aiExplanationEn, setAiExplanationEn] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiTranslateLoading, setAiTranslateLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+
+  const aiTranslateAbortRef = useRef(null);
 
   const [ruralTab, setRuralTab] = useState("debtTrap");
   const [debtForm, setDebtForm] = useState({
@@ -206,7 +214,7 @@ export function DecoderPolicyMarketHub() {
       setResult(data);
     } catch (err) {
       console.error(err);
-      alert("Backend error");
+      alert(t("Backend error"));
     } finally {
       setLoading(false);
     }
@@ -216,8 +224,10 @@ export function DecoderPolicyMarketHub() {
     if (!result) return;
 
     setAiLoading(true);
+    setAiTranslateLoading(false);
     setAiError("");
     setAiExplanation("");
+    setAiExplanationEn("");
 
     try {
       const finalValues = getFinalValuesFromYearlyProjection(result.yearly_projection);
@@ -243,14 +253,63 @@ export function DecoderPolicyMarketHub() {
         recommendedOption: recommended,
       });
 
-      setAiExplanation(text);
+      setAiExplanationEn(text);
+
+      if (language === "en") {
+        setAiExplanation(text);
+      } else {
+        if (aiTranslateAbortRef.current) aiTranslateAbortRef.current.abort();
+        const controller = new AbortController();
+        aiTranslateAbortRef.current = controller;
+        setAiTranslateLoading(true);
+        const translated = await translateText(text, language, "en", { signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setAiExplanation(translated);
+        }
+      }
     } catch (err) {
       console.error(err);
-      setAiError(err instanceof Error ? err.message : "Failed to generate explanation.");
+      setAiError(err instanceof Error ? err.message : t("Failed to generate explanation."));
     } finally {
       setAiLoading(false);
+      setAiTranslateLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!aiExplanationEn) {
+      setAiExplanation("");
+      return;
+    }
+
+    if (language === "en") {
+      if (aiTranslateAbortRef.current) aiTranslateAbortRef.current.abort();
+      setAiTranslateLoading(false);
+      setAiExplanation(aiExplanationEn);
+      return;
+    }
+
+    if (aiTranslateAbortRef.current) aiTranslateAbortRef.current.abort();
+    const controller = new AbortController();
+    aiTranslateAbortRef.current = controller;
+    setAiTranslateLoading(true);
+
+    translateText(aiExplanationEn, language, "en", { signal: controller.signal })
+      .then((translated) => {
+        if (!controller.signal.aborted) {
+          setAiExplanation(translated);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setAiTranslateLoading(false);
+        }
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [aiExplanationEn, language]);
 
   async function generateDebtTrap() {
     setDebtLoading(true);
@@ -275,7 +334,7 @@ export function DecoderPolicyMarketHub() {
       setDebtResult(data);
     } catch (err) {
       console.error(err);
-      alert("Backend error");
+      alert(t("Backend error"));
     } finally {
       setDebtLoading(false);
     }
@@ -305,7 +364,7 @@ export function DecoderPolicyMarketHub() {
       setVarResult({ ...data, yearly_projection: yearly });
     } catch (err) {
       console.error(err);
-      alert("Backend error");
+      alert(t("Backend error"));
     } finally {
       setVarLoading(false);
     }
@@ -345,7 +404,7 @@ export function DecoderPolicyMarketHub() {
       });
     } catch (err) {
       console.error(err);
-      alert("Backend error");
+      alert(t("Backend error"));
     } finally {
       setMissedLoading(false);
     }
@@ -355,11 +414,11 @@ export function DecoderPolicyMarketHub() {
     <Card className="glass">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
-          <CardTitle className="text-xl">Investment Allocation Simulator</CardTitle>
+          <CardTitle className="text-xl">{t("Investment Allocation Simulator")}</CardTitle>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <Label className="text-sm">Rural mode</Label>
-              <p className="text-xs text-muted-foreground">Debt trap, variable income, missed payments</p>
+              <Label className="text-sm">{t("Rural mode")}</Label>
+              <p className="text-xs text-muted-foreground">{t("Debt trap, variable income, missed payments")}</p>
             </div>
             <Switch checked={isRural} onCheckedChange={setIsRural} className="data-[state=checked]:bg-accent" />
           </div>
@@ -375,31 +434,31 @@ export function DecoderPolicyMarketHub() {
                   <div key={key} className="space-y-1">
                     {key === "Dependents" ? (
                       <div className="flex items-center gap-1">
-                        <Label>Dependents</Label>
+                        <Label>{t("Dependents")}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <button
                               type="button"
                               className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-                              aria-label="Dependents info"
+                              aria-label={t("Dependents info")}
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72">
                             <p className="text-sm text-muted-foreground">
-                              Represents the number of people financially dependent on you.
+                              {t("Represents the number of people financially dependent on you.")}
                             </p>
                           </PopoverContent>
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{key.replace("_", " ")}</Label>
+                      <Label>{t(key.replace("_", " "))}</Label>
                     )}
                     <Input
                       value={form[key]}
                       onChange={(e) => update(key, e.target.value)}
-                      placeholder={key}
+                      placeholder={t(key.replace("_", " "))}
                     />
                   </div>
                 )
@@ -407,7 +466,7 @@ export function DecoderPolicyMarketHub() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold mb-2">Monthly Expenses</p>
+              <p className="text-sm font-semibold mb-2">{t("Monthly Expenses")}</p>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   "Rent",
@@ -423,11 +482,11 @@ export function DecoderPolicyMarketHub() {
                   "Miscellaneous",
                 ].map((key) => (
                   <div key={key} className="space-y-1">
-                    <Label>{key.replace("_", " ")}</Label>
+                    <Label>{t(key.replace("_", " "))}</Label>
                     <Input
                       value={form[key]}
                       onChange={(e) => update(key, e.target.value)}
-                      placeholder={key}
+                      placeholder={t(key.replace("_", " "))}
                     />
                   </div>
                 ))}
@@ -435,20 +494,20 @@ export function DecoderPolicyMarketHub() {
             </div>
 
             <div className="glass rounded-2xl p-4 space-y-2">
-              <Label className="text-sm text-muted-foreground">Financial goals</Label>
+              <Label className="text-sm text-muted-foreground">{t("Financial goals")}</Label>
               <Textarea
                 value={financialGoals}
                 onChange={(e) => setFinancialGoals(e.target.value)}
-                placeholder="E.g., emergency fund in 2 years, child education, retirement, buy a home..."
+                placeholder={t("E.g., emergency fund in 2 years, child education, retirement, buy a home...")}
                 className="bg-secondary"
               />
               <p className="text-xs text-muted-foreground">
-                This will be used to generate a personalized explanation (optional).
+                {t("This will be used to generate a personalized explanation (optional).")}
               </p>
             </div>
 
             <Button onClick={generate} disabled={loading}>
-              {loading ? "Calculating..." : "Generate Investment Graph"}
+              {loading ? t("Calculating...") : t("Generate Investment Graph")}
             </Button>
 
             {result && (
@@ -460,25 +519,25 @@ export function DecoderPolicyMarketHub() {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                       <Card>
                         <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">Recommended option</p>
+                          <p className="text-xs text-muted-foreground">{t("Recommended option")}</p>
                           <p className="text-lg font-semibold">{recommended}</p>
                         </CardContent>
                       </Card>
                       <Card>
                         <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">SIP (final)</p>
+                          <p className="text-xs text-muted-foreground">{t("SIP (final)")}</p>
                           <p className="text-lg font-semibold">{formatCurrency(finalValues.sip)}</p>
                         </CardContent>
                       </Card>
                       <Card>
                         <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">RD (final)</p>
+                          <p className="text-xs text-muted-foreground">{t("RD (final)")}</p>
                           <p className="text-lg font-semibold">{formatCurrency(finalValues.rd)}</p>
                         </CardContent>
                       </Card>
                       <Card>
                         <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">FD (final)</p>
+                          <p className="text-xs text-muted-foreground">{t("FD (final)")}</p>
                           <p className="text-lg font-semibold">{formatCurrency(finalValues.fd)}</p>
                         </CardContent>
                       </Card>
@@ -489,7 +548,7 @@ export function DecoderPolicyMarketHub() {
                 <div className="grid grid-cols-3 gap-4">
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">Saving capacity</p>
+                      <p className="text-xs text-muted-foreground">{t("Saving capacity")}</p>
                       <p className="text-lg font-semibold">
                         {result.saving_capacity.charAt(0).toUpperCase() + result.saving_capacity.slice(1)}
                       </p>
@@ -498,7 +557,7 @@ export function DecoderPolicyMarketHub() {
 
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">Risk profile</p>
+                      <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
                       <p className="text-lg font-semibold">
                         {result.risk_profile.charAt(0).toUpperCase() + result.risk_profile.slice(1)}
                       </p>
@@ -507,7 +566,7 @@ export function DecoderPolicyMarketHub() {
 
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">Monthly savings</p>
+                      <p className="text-xs text-muted-foreground">{t("Monthly savings")}</p>
                       <p className="text-lg font-semibold">{formatCurrency(result.monthly_savings)}</p>
                     </CardContent>
                   </Card>
@@ -553,22 +612,26 @@ export function DecoderPolicyMarketHub() {
                 <Card className="glass">
                   <CardContent className="pt-5 space-y-3">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold">AI explanation (Gemini)</p>
+                      <p className="text-sm font-semibold">{t("AI explanation (Gemini)")}</p>
                       <Button
                         onClick={generateAiExplanation}
-                        disabled={aiLoading}
+                        disabled={aiLoading || aiTranslateLoading}
                         variant="secondary"
                         className="bg-secondary"
                       >
-                        {aiLoading ? "Generating..." : "Generate explanation"}
+                        {aiLoading ? t("Generating...") : t("Generate explanation")}
                       </Button>
                     </div>
+
+                    {aiTranslateLoading && !aiLoading ? (
+                      <p className="text-xs text-muted-foreground">{t("Translating...")}</p>
+                    ) : null}
 
                     {aiError ? (
                       <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
                         <p className="text-sm text-destructive">{aiError}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          Make sure `VITE_GEMINI_API_KEY` is set in `frontend/.env` and restart the dev server.
+                          {t("Make sure `VITE_GEMINI_API_KEY` is set in `frontend/.env` and restart the dev server.")}
                         </p>
                       </div>
                     ) : null}
@@ -579,7 +642,7 @@ export function DecoderPolicyMarketHub() {
                       </div>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Click “Generate explanation” to see why SIP/RD/FD is recommended for your inputs.
+                        {t("Click “Generate explanation” to see why SIP/RD/FD is recommended for your inputs.")}
                       </p>
                     )}
                   </CardContent>
@@ -591,13 +654,13 @@ export function DecoderPolicyMarketHub() {
           <Tabs value={ruralTab} onValueChange={setRuralTab}>
             <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 glass p-1">
               <TabsTrigger value="debtTrap" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Debt Trap
+                {t("Debt Trap")}
               </TabsTrigger>
               <TabsTrigger value="variableIncome" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Variable Income
+                {t("Variable Income")}
               </TabsTrigger>
               <TabsTrigger value="missedPayments" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
-                Missed Payments
+                {t("Missed Payments")}
               </TabsTrigger>
             </TabsList>
 
@@ -605,27 +668,27 @@ export function DecoderPolicyMarketHub() {
               <div className="grid grid-cols-2 gap-4">
                 {["Loan_Repayment", "Peak_Income", "Lean_Income", "Zero_Income_Months", "Loan_Interest"].map((key) => (
                   <div key={key} className="space-y-1">
-                    <Label>{key.replaceAll("_", " ")}</Label>
-                    <Input value={debtForm[key]} onChange={(e) => updateDebt(key, e.target.value)} placeholder={key} />
+                    <Label>{t(key.replaceAll("_", " "))}</Label>
+                    <Input value={debtForm[key]} onChange={(e) => updateDebt(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
                   </div>
                 ))}
               </div>
 
               <Button onClick={generateDebtTrap} disabled={debtLoading}>
-                {debtLoading ? "Checking..." : "Check Debt Trap"}
+                {debtLoading ? t("Checking...") : t("Check Debt Trap")}
               </Button>
 
               {debtResult ? (
                 <Card className="glass">
                   <CardContent className="pt-5 space-y-3">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold">Result</p>
+                      <p className="text-sm font-semibold">{t("Result")}</p>
                       <span className={debtResult.debt_trap ? "text-sm font-semibold text-destructive" : "text-sm font-semibold text-success"}>
-                        {debtResult.debt_trap ? "Debt-trap risk" : "Looks safe"}
+                        {debtResult.debt_trap ? t("Debt-trap risk") : t("Looks safe")}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Minimum income considered: {formatCurrency(debtResult.min_income_used)}
+                      {t("Minimum income considered:")} {formatCurrency(debtResult.min_income_used)}
                     </p>
                     {Array.isArray(debtResult.reasons) && debtResult.reasons.length ? (
                       <div className="space-y-1">
@@ -636,7 +699,7 @@ export function DecoderPolicyMarketHub() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm">No red flags detected based on the inputs.</p>
+                      <p className="text-sm">{t("No red flags detected based on the inputs.")}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -658,34 +721,34 @@ export function DecoderPolicyMarketHub() {
                   <div key={key} className="space-y-1">
                     {key === "Dependents" ? (
                       <div className="flex items-center gap-1">
-                        <Label>Dependents</Label>
+                        <Label>{t("Dependents")}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <button
                               type="button"
                               className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-                              aria-label="Dependents info"
+                              aria-label={t("Dependents info")}
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72">
                             <p className="text-sm text-muted-foreground">
-                              Represents the number of people financially dependent on you.
+                              {t("Represents the number of people financially dependent on you.")}
                             </p>
                           </PopoverContent>
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{key.replaceAll("_", " ")}</Label>
+                      <Label>{t(key.replaceAll("_", " "))}</Label>
                     )}
-                    <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={key} />
+                    <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
                   </div>
                 ))}
               </div>
 
               <div>
-                <p className="text-sm font-semibold mb-2">Monthly Expenses</p>
+                <p className="text-sm font-semibold mb-2">{t("Monthly Expenses")}</p>
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     "Rent",
@@ -701,15 +764,15 @@ export function DecoderPolicyMarketHub() {
                     "Miscellaneous",
                   ].map((key) => (
                     <div key={key} className="space-y-1">
-                      <Label>{key.replace("_", " ")}</Label>
-                      <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={key} />
+                      <Label>{t(key.replace("_", " "))}</Label>
+                      <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={t(key.replace("_", " "))} />
                     </div>
                   ))}
                 </div>
               </div>
 
               <Button onClick={generateVariableIncome} disabled={varLoading}>
-                {varLoading ? "Calculating..." : "Generate 10-Year Graph"}
+                {varLoading ? t("Calculating...") : t("Generate 10-Year Graph")}
               </Button>
 
               {varResult ? (
@@ -717,7 +780,7 @@ export function DecoderPolicyMarketHub() {
                   <div className="grid grid-cols-2 gap-4">
                     <Card>
                       <CardContent className="pt-4">
-                        <p className="text-xs text-muted-foreground">Saving capacity</p>
+                        <p className="text-xs text-muted-foreground">{t("Saving capacity")}</p>
                         <p className="text-lg font-semibold">
                           {String(varResult.saving_capacity || "-")
                             .charAt(0)
@@ -728,7 +791,7 @@ export function DecoderPolicyMarketHub() {
 
                     <Card>
                       <CardContent className="pt-4">
-                        <p className="text-xs text-muted-foreground">Risk profile</p>
+                        <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
                         <p className="text-lg font-semibold">
                           {String(varResult.risk_profile || "-")
                             .charAt(0)
@@ -762,34 +825,34 @@ export function DecoderPolicyMarketHub() {
                   <div key={key} className="space-y-1">
                     {key === "Dependents" ? (
                       <div className="flex items-center gap-1">
-                        <Label>Dependents</Label>
+                        <Label>{t("Dependents")}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <button
                               type="button"
                               className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-                              aria-label="Dependents info"
+                              aria-label={t("Dependents info")}
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72">
                             <p className="text-sm text-muted-foreground">
-                              Represents the number of people financially dependent on you.
+                              {t("Represents the number of people financially dependent on you.")}
                             </p>
                           </PopoverContent>
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{key.replaceAll("_", " ")}</Label>
+                      <Label>{t(key.replaceAll("_", " "))}</Label>
                     )}
-                    <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={key} />
+                    <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
                   </div>
                 ))}
               </div>
 
               <div>
-                <p className="text-sm font-semibold mb-2">Monthly Expenses</p>
+                <p className="text-sm font-semibold mb-2">{t("Monthly Expenses")}</p>
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     "Rent",
@@ -805,15 +868,15 @@ export function DecoderPolicyMarketHub() {
                     "Miscellaneous",
                   ].map((key) => (
                     <div key={key} className="space-y-1">
-                      <Label>{key.replace("_", " ")}</Label>
-                      <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={key} />
+                      <Label>{t(key.replace("_", " "))}</Label>
+                      <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={t(key.replace("_", " "))} />
                     </div>
                   ))}
                 </div>
               </div>
 
               <Button onClick={generateMissedPayments} disabled={missedLoading}>
-                {missedLoading ? "Calculating..." : "Compare With/Without Missed Payments"}
+                {missedLoading ? t("Calculating...") : t("Compare With/Without Missed Payments")}
               </Button>
 
               {missedResult ? (
@@ -821,24 +884,24 @@ export function DecoderPolicyMarketHub() {
                   <div className="grid grid-cols-2 gap-4">
                     <Card className="glass">
                       <CardContent className="pt-5 space-y-1">
-                        <p className="text-xs text-muted-foreground">Without missed payments (10Y)</p>
+                        <p className="text-xs text-muted-foreground">{t("Without missed payments (10Y)")}</p>
                         <p className="text-lg font-semibold">{formatCurrency(missedResult.normal_final)}</p>
                       </CardContent>
                     </Card>
                     <Card className="glass">
                       <CardContent className="pt-5 space-y-1">
-                        <p className="text-xs text-muted-foreground">With missed payments (10Y)</p>
+                        <p className="text-xs text-muted-foreground">{t("With missed payments (10Y)")}</p>
                         <p className="text-lg font-semibold">{formatCurrency(missedResult.missed_final)}</p>
-                        <p className="text-xs text-muted-foreground">You still make: {formatCurrency(missedResult.missed_final)}</p>
+                        <p className="text-xs text-muted-foreground">{t("You still make:")} {formatCurrency(missedResult.missed_final)}</p>
                       </CardContent>
                     </Card>
                   </div>
 
                   <Card className="glass">
                     <CardContent className="pt-5 space-y-3">
-                      <p className="text-sm font-semibold">Impact</p>
+                      <p className="text-sm font-semibold">{t("Impact")}</p>
                       <p className="text-sm text-muted-foreground">
-                        Difference after 10 years: {formatCurrency(missedResult.delta_final)}
+                        {t("Difference after 10 years:")} {formatCurrency(missedResult.delta_final)}
                       </p>
                       <div className="h-[340px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -854,8 +917,8 @@ export function DecoderPolicyMarketHub() {
                             <YAxis tickFormatter={formatCurrency} />
                             <Tooltip formatter={formatCurrency} />
                             <Legend />
-                            <Area type="monotone" dataKey="normal_total" name="No missed" stroke="#22c55e" fill="#22c55e" fillOpacity={0.18} />
-                            <Area type="monotone" dataKey="missed_total" name="Missed" stroke="#f97316" fill="#f97316" fillOpacity={0.18} />
+                            <Area type="monotone" dataKey="normal_total" name={t("No missed")} stroke="#22c55e" fill="#22c55e" fillOpacity={0.18} />
+                            <Area type="monotone" dataKey="missed_total" name={t("Missed")} stroke="#f97316" fill="#f97316" fillOpacity={0.18} />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>

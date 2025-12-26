@@ -1,4 +1,5 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useI18n } from "@/i18n/i18n";
 
 const formatCurrency = (value) => {
   if (value >= 10000000) {
@@ -9,11 +10,11 @@ const formatCurrency = (value) => {
   return `₹${(value / 1000).toFixed(0)}K`;
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, t }) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg p-3 border border-border bg-card">
-        <p className="text-sm font-semibold text-foreground mb-2">Age: {label} years</p>
+        <p className="text-sm font-semibold text-foreground mb-2">{t("Age:")} {label} {t("years")}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {formatCurrency(entry.value)}
@@ -26,6 +27,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export function StackedChart({ data, comparisonData = null, showComparison = false }) {
+  const { t } = useI18n();
+
   const chartData = data.map((item, index) => ({
     age: item.age,
     principal: item.totalInvested,
@@ -38,7 +41,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
 
   return (
     <div className="glass rounded-2xl p-5 animate-fade-in" style={{ animationDelay: "300ms" }}>
-      <h3 className="text-lg font-semibold text-foreground mb-4">Growth Over Time</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-4">{t("Growth Over Time")}</h3>
       <div className="h-[26rem] md:h-[32rem]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -55,7 +58,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               tickLine={{ stroke: "hsl(var(--border))" }}
               axisLine={{ stroke: "hsl(var(--border))" }}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1, opacity: 0.6 }} />
+            <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1, opacity: 0.6 }} />
             <Legend 
               wrapperStyle={{ paddingTop: "20px" }}
               formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
@@ -68,7 +71,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               stroke="hsl(195, 100%, 65%)"
               fill="hsl(195, 100%, 65%)"
               fillOpacity={0.3}
-              name="Principal (A)"
+              name={t("Principal (A)")}
               strokeWidth={3}
               dot={false}
               activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(195, 100%, 75%)", fill: "hsl(195, 100%, 65%)" }}
@@ -83,7 +86,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               stroke="hsl(142, 76%, 50%)"
               fill="hsl(142, 76%, 50%)"
               fillOpacity={0.3}
-              name="Returns (A)"
+              name={t("Returns (A)")}
               strokeWidth={3}
               dot={false}
               activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(142, 76%, 60%)", fill: "hsl(142, 76%, 50%)" }}
@@ -101,7 +104,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   stroke="hsl(250, 70%, 65%)"
                   fill="hsl(250, 70%, 65%)"
                   fillOpacity={0.25}
-                  name="Principal (B)"
+                  name={t("Principal (B)")}
                   strokeWidth={3}
                   dot={false}
                   activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(250, 70%, 75%)", fill: "hsl(250, 70%, 65%)" }}
@@ -116,7 +119,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   stroke="hsl(45, 100%, 55%)"
                   fill="hsl(45, 100%, 55%)"
                   fillOpacity={0.25}
-                  name="Returns (B)"
+                  name={t("Returns (B)")}
                   strokeWidth={3}
                   dot={false}
                   activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(45, 100%, 65%)", fill: "hsl(45, 100%, 55%)" }}
