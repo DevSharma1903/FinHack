@@ -11,6 +11,7 @@ import { PolicyMarketHub } from "@/components/PolicyMarketHub";
 import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { EducationSection } from "@/components/EducationSection";
+import PolicySection from "@/components/PolicySection";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trans, useI18n } from "@/i18n/i18n";
 import { toast } from "sonner";
@@ -96,6 +97,9 @@ const Index = () => {
               <TabsTrigger value="npsSchemes" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
                 <Trans>NPS Schemes</Trans>
               </TabsTrigger>
+              <TabsTrigger value="policy" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+                <Trans>Policy</Trans>
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -176,6 +180,10 @@ const Index = () => {
 
           {activeSection === "npsSchemes" ? (
             <NpsSchemesTab />
+          ) : null}
+
+          {activeSection === "policy" ? (
+            <PolicySection />
           ) : null}
         </div>
 
