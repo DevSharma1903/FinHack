@@ -197,7 +197,16 @@ def investment_graph(user: UserInput):
     expenses = df.drop(columns=["Income", "Age", "Dependents", "Occupation", "City_Tier"]).sum(axis=1).iloc[0]
     monthly_savings = int(df["Income"].iloc[0] - expenses)
 
-    sip_pct, rd_pct, fd_pct = get_allocation(saving_capacity, risk_profile)
+    allocation = get_allocation(saving_capacity, risk_profile)
+    if allocation is None:
+        sip_pct, rd_pct, fd_pct = (50, 25, 25)
+    else:
+        sip_pct, rd_pct, fd_pct = allocation
+
+    if user.sip_pct is not None and user.rd_pct is not None and user.fd_pct is not None:
+        sip_pct = int(user.sip_pct)
+        rd_pct = int(user.rd_pct)
+        fd_pct = int(user.fd_pct)
 
     sip_m = float(monthly_savings * sip_pct / 100)
     rd_m = float(monthly_savings * rd_pct / 100)
