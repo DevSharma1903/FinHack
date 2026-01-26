@@ -214,7 +214,10 @@ def investment_graph(user: UserInput):
             "rd": round(rd_m, 2),
             "fd": round(fd_m, 2),
         },
-        "yearly_projection": projection
+        "yearly_projection": projection,
+        "sip_pct": sip_pct,
+        "rd_pct": rd_pct,
+        "fd_pct": fd_pct,
     }
 
 @app.post("/insurance-analysis")

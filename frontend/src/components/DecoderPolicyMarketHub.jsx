@@ -249,6 +249,9 @@ export function DecoderPolicyMarketHub() {
           sipValue: formatCurrency(finalValues.sip),
           rdValue: formatCurrency(finalValues.rd),
           fdValue: formatCurrency(finalValues.fd),
+          sipPct: result.sip_pct,
+          rdPct: result.rd_pct,
+          fdPct: result.fd_pct,
         },
         recommendedOption: recommended,
       });
@@ -570,6 +573,28 @@ export function DecoderPolicyMarketHub() {
                       <p className="text-lg font-semibold">{formatCurrency(result.monthly_savings)}</p>
                     </CardContent>
                   </Card>
+
+                   <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-muted-foreground">{t("SIP Percentage Allocation")}</p>
+                      <p className="text-lg font-semibold">{result.sip_pct}%</p>
+                    </CardContent>
+                  </Card>
+
+                   <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-muted-foreground">{t("RD Percentage Allocation")}</p>
+                      <p className="text-lg font-semibold">{result.rd_pct}%</p>
+                    </CardContent>
+                  </Card>
+
+                   <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-muted-foreground">{t("FD Percentage Allocation")}</p>
+                      <p className="text-lg font-semibold">{result.fd_pct}%</p>
+                    </CardContent>
+                  </Card>
+
                 </div>
 
                 <div className="h-[360px]">
