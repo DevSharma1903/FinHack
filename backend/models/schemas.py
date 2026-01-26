@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class UserInput(BaseModel):
     Income: int
@@ -17,6 +18,10 @@ class UserInput(BaseModel):
     Healthcare: int
     Education: int
     Miscellaneous: int
+
+    sip_pct: Optional[int] = None
+    rd_pct: Optional[int] = None
+    fd_pct: Optional[int] = None
 
 class VariableIncomeInput(UserInput):
     Peak_Income: int

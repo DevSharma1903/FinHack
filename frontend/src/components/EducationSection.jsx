@@ -40,9 +40,9 @@ const buildEducationContent = (t) => [
         </div>
 
         <div className="space-y-4 mt-6">
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-2">{translateNode("FD > RD in returns if:", t)}</h4>
-            <ul className="list-disc pl-5 space-y-1 text-amber-700 dark:text-amber-300">
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">{translateNode("FD > RD in returns if:", t)}</h4>
+            <ul className="list-disc pl-5 space-y-1 text-blue-700 dark:text-blue-300">
               <li>{translateNode("Interest rate is the same", t)}</li>
               <li>{translateNode("Total invested amount is the same", t)}</li>
             </ul>
@@ -52,6 +52,8 @@ const buildEducationContent = (t) => [
             <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">{translateNode("RD is better if:", t)}</h4>
             <ul className="list-disc pl-5 space-y-1 text-blue-700 dark:text-blue-300">
               <li>{translateNode("You don't have a lump sum", t)}</li>
+              <li>{translateNode("You want disciplined monthly savings", t)}</li>
+
             </ul>
           </div>
         </div>

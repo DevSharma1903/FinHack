@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { Info } from "lucide-react";
 
@@ -66,6 +67,10 @@ export function DecoderPolicyMarketHub() {
 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [recommendedOption, setRecommendedOption] = useState(null);
+  const [selectedInvestmentType, setSelectedInvestmentType] = useState("");
+  const [graphResult, setGraphResult] = useState(null);
+  const [graphLoading, setGraphLoading] = useState(false);
 
   const [aiExplanation, setAiExplanation] = useState("");
   const [aiExplanationEn, setAiExplanationEn] = useState("");
@@ -174,6 +179,73 @@ export function DecoderPolicyMarketHub() {
     setMissedForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Helper function to render appropriate input based on field type
+  function renderInputField(key, value, onChange, placeholder) {
+    if (key === "Income") {
+      return (
+        <Input
+          type="number"
+          min="0"
+          value={value}
+          onChange={(e) => onChange(key, e.target.value)}
+          placeholder={placeholder}
+        />
+      );
+    }
+    
+    if (key === "Dependents") {
+      return (
+        <Input
+          type="number"
+          min="0"
+          value={value}
+          onChange={(e) => onChange(key, e.target.value)}
+          placeholder={placeholder}
+        />
+      );
+    }
+    
+    if (key === "Occupation") {
+      return (
+        <Select value={value} onValueChange={(val) => onChange(key, val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Self Employed">Self Employed</SelectItem>
+            <SelectItem value="Student">Student</SelectItem>
+            <SelectItem value="Retired">Retired</SelectItem>
+            <SelectItem value="Professional">Professional</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    
+    if (key === "City_Tier") {
+      return (
+        <Select value={value} onValueChange={(val) => onChange(key, val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Tier 1">Tier 1</SelectItem>
+            <SelectItem value="Tier 2">Tier 2</SelectItem>
+            <SelectItem value="Tier 3">Tier 3</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    
+    // Default to text input for other fields
+    return (
+      <Input
+        value={value}
+        onChange={(e) => onChange(key, e.target.value)}
+        placeholder={placeholder}
+      />
+    );
+  }
+
   function toYearlyFromMonthly(monthlyProjection) {
     if (!Array.isArray(monthlyProjection)) return [];
     const years = Math.floor(monthlyProjection.length / 12);
@@ -210,13 +282,69 @@ export function DecoderPolicyMarketHub() {
         body: JSON.stringify(payload),
       });
 
+      if (!res.ok) throw new Error("Backend error");
+
       const data = await res.json();
       setResult(data);
+      
+      // Extract recommended option
+      const finalValues = getFinalValuesFromYearlyProjection(data.yearly_projection);
+      const recommended = getRecommendedOptionFromProjection(finalValues);
+      setRecommendedOption(recommended);
+      
     } catch (err) {
       console.error(err);
       alert(t("Backend error"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateInvestmentGraph() {
+    setGraphLoading(true);
+    setGraphResult(null);
+
+    const payload = {};
+    for (const key in form) {
+      payload[key] =
+        key === "Occupation" || key === "City_Tier"
+          ? form[key]
+          : Number(form[key]) || 0;
+    }
+
+    // Force allocation based on selected investment type
+    if (selectedInvestmentType === "SIP") {
+      payload.sip_pct = 100;
+      payload.rd_pct = 0;
+      payload.fd_pct = 0;
+    } else if (selectedInvestmentType === "RD") {
+      payload.sip_pct = 0;
+      payload.rd_pct = 100;
+      payload.fd_pct = 0;
+    } else if (selectedInvestmentType === "FD") {
+      payload.sip_pct = 0;
+      payload.rd_pct = 0;
+      payload.fd_pct = 100;
+    }
+    // For Hybrid, use the ML model's recommendation (no forced allocation)
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/investment-graph", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Backend error");
+
+      const data = await res.json();
+      setGraphResult(data);
+      
+    } catch (err) {
+      console.error(err);
+      alert(t("Backend error"));
+    } finally {
+      setGraphLoading(false);
     }
   }
 
@@ -456,13 +584,9 @@ export function DecoderPolicyMarketHub() {
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{t(key.replace("_", " "))}</Label>
+                      <Label>{t(key === "Income" ? "Monthly Income" : key.replace("_", " "))}</Label>
                     )}
-                    <Input
-                      value={form[key]}
-                      onChange={(e) => update(key, e.target.value)}
-                      placeholder={t(key.replace("_", " "))}
-                    />
+                    {renderInputField(key, form[key], update, t(key === "Income" ? "Monthly Income" : key.replace("_", " ")))}
                   </div>
                 )
               )}
@@ -510,168 +634,188 @@ export function DecoderPolicyMarketHub() {
             </div>
 
             <Button onClick={generate} disabled={loading}>
-              {loading ? t("Calculating...") : t("Generate Investment Graph")}
+              {loading ? t("Calculating...") : t("Get Recommended Option")}
             </Button>
 
-            {result && (
+            {recommendedOption && (
               <>
-                {(() => {
-                  const finalValues = getFinalValuesFromYearlyProjection(result.yearly_projection);
-                  const recommended = getRecommendedOptionFromProjection(finalValues);
-                  return (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                      <Card>
-                        <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">{t("Recommended option")}</p>
-                          <p className="text-lg font-semibold">{recommended}</p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">{t("SIP (final)")}</p>
-                          <p className="text-lg font-semibold">{formatCurrency(finalValues.sip)}</p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">{t("RD (final)")}</p>
-                          <p className="text-lg font-semibold">{formatCurrency(finalValues.rd)}</p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="pt-4">
-                          <p className="text-xs text-muted-foreground">{t("FD (final)")}</p>
-                          <p className="text-lg font-semibold">{formatCurrency(finalValues.fd)}</p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  );
-                })()}
-
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("Saving capacity")}</p>
-                      <p className="text-lg font-semibold">
-                        {result.saving_capacity.charAt(0).toUpperCase() + result.saving_capacity.slice(1)}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{t("Recommended option")}</p>
+                      <p className="text-lg font-semibold">{recommendedOption}</p>
                     </CardContent>
                   </Card>
-
-                  <Card>
-                    <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
-                      <p className="text-lg font-semibold">
-                        {result.risk_profile.charAt(0).toUpperCase() + result.risk_profile.slice(1)}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("Monthly savings")}</p>
-                      <p className="text-lg font-semibold">{formatCurrency(result.monthly_savings)}</p>
-                    </CardContent>
-                  </Card>
-
-                   <Card>
-                    <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("SIP Percentage Allocation")}</p>
-                      <p className="text-lg font-semibold">{result.sip_pct}%</p>
-                    </CardContent>
-                  </Card>
-
-                   <Card>
-                    <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("RD Percentage Allocation")}</p>
-                      <p className="text-lg font-semibold">{result.rd_pct}%</p>
-                    </CardContent>
-                  </Card>
-
-                   <Card>
-                    <CardContent className="pt-4">
-                      <p className="text-xs text-muted-foreground">{t("FD Percentage Allocation")}</p>
-                      <p className="text-lg font-semibold">{result.fd_pct}%</p>
-                    </CardContent>
-                  </Card>
-
                 </div>
 
-                <div className="h-[360px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={result.yearly_projection}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="year" />
-                      <YAxis tickFormatter={formatCurrency} />
-                      <Tooltip formatter={formatCurrency} />
-                      <Legend />
-
-                      <Area
-                        type="monotone"
-                        dataKey="sip"
-                        name="SIP"
-                        stroke="#38bdf8"
-                        fill="#38bdf8"
-                        fillOpacity={0.3}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="rd"
-                        name="RD"
-                        stroke="#22c55e"
-                        fill="#22c55e"
-                        fillOpacity={0.3}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="fd"
-                        name="FD"
-                        stroke="#a855f7"
-                        fill="#a855f7"
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                <div className="space-y-2">
+                  <Label>{t("View investment growth for:")}</Label>
+                  <Select value={selectedInvestmentType} onValueChange={setSelectedInvestmentType}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("Select investment type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Hybrid">Hybrid</SelectItem>
+                      <SelectItem value="SIP">SIP</SelectItem>
+                      <SelectItem value="RD">RD</SelectItem>
+                      <SelectItem value="FD">FD</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <Card className="glass">
-                  <CardContent className="pt-5 space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold">{t("AI explanation (Gemini)")}</p>
-                      <Button
-                        onClick={generateAiExplanation}
-                        disabled={aiLoading || aiTranslateLoading}
-                        variant="secondary"
-                        className="bg-secondary"
-                      >
-                        {aiLoading ? t("Generating...") : t("Generate explanation")}
-                      </Button>
-                    </div>
+                {selectedInvestmentType && (
+                  <Button onClick={generateInvestmentGraph} disabled={graphLoading}>
+                    {graphLoading ? t("Generating...") : t("Generate Graph")}
+                  </Button>
+                )}
 
-                    {aiTranslateLoading && !aiLoading ? (
-                      <p className="text-xs text-muted-foreground">{t("Translating...")}</p>
-                    ) : null}
+                {graphResult && (
+                  <>
+                    {(() => {
+                      const projection = Array.isArray(graphResult.yearly_projection) ? graphResult.yearly_projection : [];
+                      const displayProjection = projection.map((p) => {
+                        const sip = Number(p?.sip) || 0;
+                        const rd = Number(p?.rd) || 0;
+                        const fd = Number(p?.fd) || 0;
 
-                    {aiError ? (
-                      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                        <p className="text-sm text-destructive">{aiError}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {t("Make sure `VITE_GEMINI_API_KEY` is set in `frontend/.env` and restart the dev server.")}
-                        </p>
-                      </div>
-                    ) : null}
+                        if (selectedInvestmentType === "SIP") return { ...p, sip: sip + rd + fd, rd: 0, fd: 0 };
+                        if (selectedInvestmentType === "RD") return { ...p, rd: sip + rd + fd, sip: 0, fd: 0 };
+                        if (selectedInvestmentType === "FD") return { ...p, fd: sip + rd + fd, sip: 0, rd: 0 };
+                        return p;
+                      });
 
-                    {aiExplanation ? (
-                      <div className="rounded-lg border border-border bg-card p-4">
-                        <p className="whitespace-pre-wrap text-sm text-foreground">{aiExplanation}</p>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        {t("Click “Generate explanation” to see why SIP/RD/FD is recommended for your inputs.")}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                      const finalValues = getFinalValuesFromYearlyProjection(displayProjection);
+
+                      return (
+                        <>
+                          {selectedInvestmentType === "Hybrid" ? (
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                              <Card>
+                                <CardContent className="pt-4">
+                                  <p className="text-xs text-muted-foreground">{t("SIP (final)")}</p>
+                                  <p className="text-lg font-semibold">{formatCurrency(finalValues.sip)}</p>
+                                </CardContent>
+                              </Card>
+                              <Card>
+                                <CardContent className="pt-4">
+                                  <p className="text-xs text-muted-foreground">{t("RD (final)")}</p>
+                                  <p className="text-lg font-semibold">{formatCurrency(finalValues.rd)}</p>
+                                </CardContent>
+                              </Card>
+                              <Card>
+                                <CardContent className="pt-4">
+                                  <p className="text-xs text-muted-foreground">{t("FD (final)")}</p>
+                                  <p className="text-lg font-semibold">{formatCurrency(finalValues.fd)}</p>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                              <Card>
+                                <CardContent className="pt-4">
+                                  <p className="text-xs text-muted-foreground">{t(`${selectedInvestmentType} (final)`)}</p>
+                                  <p className="text-lg font-semibold">
+                                    {formatCurrency(
+                                      selectedInvestmentType === "SIP"
+                                        ? finalValues.sip
+                                        : selectedInvestmentType === "RD"
+                                          ? finalValues.rd
+                                          : finalValues.fd
+                                    )}
+                                  </p>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <Card>
+                              <CardContent className="pt-4">
+                                <p className="text-xs text-muted-foreground">{t("Saving capacity")}</p>
+                                <p className="text-lg font-semibold">
+                                  {graphResult.saving_capacity.charAt(0).toUpperCase() + graphResult.saving_capacity.slice(1)}
+                                </p>
+                              </CardContent>
+                            </Card>
+
+                            <Card>
+                              <CardContent className="pt-4">
+                                <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
+                                <p className="text-lg font-semibold">
+                                  {graphResult.risk_profile.charAt(0).toUpperCase() + graphResult.risk_profile.slice(1)}
+                                </p>
+                              </CardContent>
+                            </Card>
+
+                            <Card>
+                              <CardContent className="pt-4">
+                                <p className="text-xs text-muted-foreground">{t("Monthly savings")}</p>
+                                <p className="text-lg font-semibold">{formatCurrency(graphResult.monthly_savings)}</p>
+                              </CardContent>
+                            </Card>
+
+                            {selectedInvestmentType === "Hybrid" ? (
+                              <>
+                                <Card>
+                                  <CardContent className="pt-4">
+                                    <p className="text-xs text-muted-foreground">{t("SIP Percentage Allocation")}</p>
+                                    <p className="text-lg font-semibold">{graphResult.sip_pct}%</p>
+                                  </CardContent>
+                                </Card>
+                                <Card>
+                                  <CardContent className="pt-4">
+                                    <p className="text-xs text-muted-foreground">{t("RD Percentage Allocation")}</p>
+                                    <p className="text-lg font-semibold">{graphResult.rd_pct}%</p>
+                                  </CardContent>
+                                </Card>
+                                <Card>
+                                  <CardContent className="pt-4">
+                                    <p className="text-xs text-muted-foreground">{t("FD Percentage Allocation")}</p>
+                                    <p className="text-lg font-semibold">{graphResult.fd_pct}%</p>
+                                  </CardContent>
+                                </Card>
+                              </>
+                            ) : null}
+                          </div>
+
+                          <div className="h-[360px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={displayProjection}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="year" />
+                                <YAxis tickFormatter={formatCurrency} />
+                                <Tooltip formatter={formatCurrency} />
+                                <Legend />
+
+                                {selectedInvestmentType === "Hybrid" ? (
+                                  <>
+                                    <Area type="monotone" dataKey="sip" name="SIP" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
+                                    <Area type="monotone" dataKey="rd" name="RD" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
+                                    <Area type="monotone" dataKey="fd" name="FD" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} />
+                                  </>
+                                ) : selectedInvestmentType === "SIP" ? (
+                                  <Area type="monotone" dataKey="sip" name="SIP" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
+                                ) : selectedInvestmentType === "RD" ? (
+                                  <Area type="monotone" dataKey="rd" name="RD" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
+                                ) : (
+                                  <Area type="monotone" dataKey="fd" name="FD" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} />
+                                )}
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+
+                          {selectedInvestmentType === "Hybrid" ? (
+                            <p className="text-xs text-muted-foreground">
+                              {t(
+                                "This graph shows how your total monthly savings are optimally split between SIP, RD and FD to maximize long-term returns."
+                              )}
+                            </p>
+                          ) : null}
+                        </>
+                      );
+                    })()}
+                  </>
+                )}
               </>
             )}
           </>
@@ -765,9 +909,12 @@ export function DecoderPolicyMarketHub() {
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{t(key.replaceAll("_", " "))}</Label>
+                      <Label>{t(key === "Income" ? "Monthly Income" : key.replaceAll("_", " "))}</Label>
                     )}
-                    <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
+                    {key === "Income" || key === "Dependents" || key === "Occupation" || key === "City_Tier" 
+                      ? renderInputField(key, varForm[key], updateVar, t(key === "Income" ? "Monthly Income" : key.replaceAll("_", " ")))
+                      : <Input value={varForm[key]} onChange={(e) => updateVar(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
+                    }
                   </div>
                 ))}
               </div>
@@ -869,9 +1016,12 @@ export function DecoderPolicyMarketHub() {
                         </Popover>
                       </div>
                     ) : (
-                      <Label>{t(key.replaceAll("_", " "))}</Label>
+                      <Label>{t(key === "Income" ? "Monthly Income" : key.replaceAll("_", " "))}</Label>
                     )}
-                    <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
+                    {key === "Income" || key === "Dependents" || key === "Occupation" || key === "City_Tier" 
+                      ? renderInputField(key, missedForm[key], updateMissed, t(key === "Income" ? "Monthly Income" : key.replaceAll("_", " ")))
+                      : <Input value={missedForm[key]} onChange={(e) => updateMissed(key, e.target.value)} placeholder={t(key.replaceAll("_", " "))} />
+                    }
                   </div>
                 ))}
               </div>
