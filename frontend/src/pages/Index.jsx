@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRetirementCalculator } from "@/hooks/useRetirementCalculator";
 import { InputSection } from "@/components/retirement/InputSection";
 import { ResultCards } from "@/components/retirement/ResultCards";
@@ -12,11 +13,14 @@ import { DecoderPolicyMarketHub } from "@/components/DecoderPolicyMarketHub";
 import { NpsSchemesTab } from "@/components/NpsSchemesTab";
 import { EducationSection } from "@/components/EducationSection";
 import PolicySection from "@/components/PolicySection";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trans, useI18n } from "@/i18n/i18n";
 import { toast } from "sonner";
+import { logout } from "@/lib/auth";
 
 const Index = () => {
+  const navigate = useNavigate();
   const {
     inputs,
     updateInput,
@@ -75,6 +79,16 @@ const Index = () => {
                 <p className="hidden md:block text-xs text-muted-foreground">{t("Translating...")}</p>
               ) : null}
               <ThemeToggle />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                }}
+              >
+                Logout
+              </Button>
             </div>
           </div>
         </div>
