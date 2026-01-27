@@ -6,13 +6,16 @@ import joblib
 import os
 import re
 from typing import Any
+from datetime import datetime
 
 from models.schemas import (
     UserInput,
     VariableIncomeInput,
     MissedPaymentInput,
     DebtTrapInput,
-    InsuranceInput
+    InsuranceInput,
+    AdviceHashRequest,
+    AdviceHashResponse
 )
 
 from utils.allocation import get_allocation
@@ -23,6 +26,7 @@ from utils.monte_carlo import mc_impact
 from utils.rural_income import generate_variable_income_schedule
 from utils.rural_projection import generate_variable_projection
 from utils.debt_trap import detect_debt_trap
+from utils.advice_hash import hash_advice
 
 app=FastAPI()
 app.add_middleware(
@@ -384,4 +388,29 @@ def debt_trap_check(data: DebtTrapInput):
         "debt_trap": flag,
         "reasons": reasons,
         "min_income_used": min_income
+    }
+
+@app.post("/api/advice/hash", response_model=AdviceHashResponse)
+def hash_financial_advice(payload: AdviceHashRequest):
+    advice_hash = hash_advice(payload.advice_text)
+
+    record = {
+        "user_id": payload.user_id,
+        "model_used": payload.model_used,
+        "advice_hash": advice_hash,
+        "created_at": datetime.utcnow().isoformat()
+    }
+
+    return {
+        "advice_hash": advice_hash,
+        "created_at": record["created_at"]
+    }
+
+@app.post("/api/advice/verify")
+def verify_advice_integrity(advice_text: str, stored_hash: str):
+    computed_hash = hash_advice(advice_text)
+
+    return {
+        "valid": computed_hash == stored_hash,
+        "computed_hash": computed_hash
     }

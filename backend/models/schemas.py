@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class UserInput(BaseModel):
     Income: int
@@ -48,3 +49,11 @@ class InsuranceInput(BaseModel):
     existing_cover: int
     monthly_savings: int
  
+class AdviceHashRequest(BaseModel):
+    advice_text: str
+    user_id: str
+    model_used: str
+
+class AdviceHashResponse(BaseModel):
+    advice_hash: str
+    created_at: str

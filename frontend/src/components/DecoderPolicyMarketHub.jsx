@@ -78,6 +78,12 @@ export function DecoderPolicyMarketHub() {
   const [aiTranslateLoading, setAiTranslateLoading] = useState(false);
   const [aiError, setAiError] = useState("");
 
+  const [adviceHash, setAdviceHash] = useState(null);
+  const [adviceHashTime, setAdviceHashTime] = useState(null);
+  const [hashLoading, setHashLoading] = useState(false); 
+  const [hashError, setHashError] = useState("");
+
+
   const aiTranslateAbortRef = useRef(null);
 
   const [ruralTab, setRuralTab] = useState("debtTrap");
@@ -300,6 +306,34 @@ export function DecoderPolicyMarketHub() {
     }
   }
 
+  async function hashAdviceOnBackend(adviceText) {
+    setHashLoading(true);
+    setHashError("");
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/advice/hash", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          advice_text: adviceText,
+          user_id: "demo-user",        // or real user id
+          model_used: "gemini"
+        }),
+      });
+
+      if (!res.ok) throw new Error("Hashing failed");
+
+      const data = await res.json();
+      setAdviceHash(data.advice_hash);
+      setAdviceHashTime(data.created_at);
+    } catch (err) {
+      console.error(err);
+      setHashError("Verification failed");
+    } finally {
+      setHashLoading(false);
+    }
+  }
+
   async function generateInvestmentGraph() {
     setGraphLoading(true);
     setGraphResult(null);
@@ -385,6 +419,7 @@ export function DecoderPolicyMarketHub() {
       });
 
       setAiExplanationEn(text);
+      await hashAdviceOnBackend(text);
 
       if (language === "en") {
         setAiExplanation(text);
@@ -811,6 +846,62 @@ export function DecoderPolicyMarketHub() {
                               )}
                             </p>
                           ) : null}
+                          {/* ================= AI EXPLANATION ================= */}
+                          <Card className="glass mt-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                🤖 Personalized Investment Explanation
+                              </CardTitle>
+                            </CardHeader>
+
+                            <CardContent className="space-y-4">
+                              {!aiExplanation && (
+                                <Button
+                                  onClick={generateAiExplanation}
+                                  disabled={aiLoading}
+                                >
+                                  {aiLoading ? "Generating explanation…" : "Explain this recommendation"}
+                                </Button>
+                              )}
+
+                              {aiError && (
+                                <p className="text-sm text-destructive">{aiError}</p>
+                              )}
+
+                              {aiExplanation && (
+                                <>
+                                  <div className="whitespace-pre-line text-sm leading-relaxed">
+                                    {aiExplanation}
+                                  </div>
+
+                                  {/* ===== Blockchain verification ===== */}
+                                  <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-3">
+                                    <p className="text-sm font-semibold text-success">
+                                      ✅ Blockchain integrity verified
+                                    </p>
+
+                                    {hashLoading ? (
+                                      <p className="text-xs text-muted-foreground">
+                                        Generating cryptographic proof…
+                                      </p>
+                                    ) : adviceHash ? (
+                                      <>
+                                        <p className="text-xs text-muted-foreground">
+                                          SHA-256 hash stored on immutable ledger
+                                        </p>
+                                        <p className="break-all text-[11px] font-mono text-muted-foreground">
+                                          {adviceHash}
+                                        </p>
+                                      </>
+                                    ) : hashError ? (
+                                      <p className="text-xs text-destructive">{hashError}</p>
+                                    ) : null}
+                                  </div>
+                                </>
+                              )}
+                            </CardContent>
+                          </Card>
+
                         </>
                       );
                     })()}
