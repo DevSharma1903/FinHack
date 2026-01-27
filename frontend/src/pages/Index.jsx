@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRetirementCalculator } from "@/hooks/useRetirementCalculator";
 import { InputSection } from "@/components/retirement/InputSection";
 import { ResultCards } from "@/components/retirement/ResultCards";
@@ -20,7 +20,18 @@ import { toast } from "sonner";
 import { logout } from "@/lib/auth";
 
 const Index = () => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const pathToSection = {
+    "/decoder": "decoder",
+    "/retirement": "retirement",
+    "/insurance": "insurance",
+    "/education": "education",
+    "/nps": "npsSchemes",
+    "/policy": "policy",
+  };
+
+  const initialActiveSection = pathToSection[location.pathname] || "decoder";
   const {
     inputs,
     updateInput,
@@ -33,8 +44,12 @@ const Index = () => {
   } = useRetirementCalculator();
 
   const [calculated, setCalculated] = useState(true);
-  const [activeSection, setActiveSection] = useState("decoder");
+  const [activeSection, setActiveSection] = useState(initialActiveSection);
   const { t, language, isTranslating } = useI18n();
+
+  useEffect(() => {
+    setActiveSection(initialActiveSection);
+  }, [initialActiveSection]);
 
   const handleCalculate = () => {
     setCalculated(true);
