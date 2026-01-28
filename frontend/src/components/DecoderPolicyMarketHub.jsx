@@ -777,7 +777,14 @@ export function DecoderPolicyMarketHub() {
                               <CardContent className="pt-4">
                                 <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
                                 <p className="text-lg font-semibold">
-                                  {graphResult.risk_profile.charAt(0).toUpperCase() + graphResult.risk_profile.slice(1)}
+                                  {selectedInvestmentType === "SIP" 
+                                    ? "High" 
+                                    : selectedInvestmentType === "RD" 
+                                    ? "Medium" 
+                                    : selectedInvestmentType === "FD" 
+                                    ? "Low" 
+                                    : graphResult.risk_profile.charAt(0).toUpperCase() + graphResult.risk_profile.slice(1)
+                                  }
                                 </p>
                               </CardContent>
                             </Card>
@@ -815,10 +822,14 @@ export function DecoderPolicyMarketHub() {
 
                           <div className="h-[360px]">
                             <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart data={displayProjection}>
+                              <AreaChart data={displayProjection} margin={{ top: 10, right: 30, left: 80, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="year" />
-                                <YAxis tickFormatter={formatCurrency} />
+                                <YAxis 
+                                  tickFormatter={formatCurrency} 
+                                  tick={{ fontSize: 12 }}
+                                  width={80}
+                                />
                                 <Tooltip formatter={formatCurrency} />
                                 <Legend />
 
@@ -1054,9 +1065,16 @@ export function DecoderPolicyMarketHub() {
                       <CardContent className="pt-4">
                         <p className="text-xs text-muted-foreground">{t("Risk profile")}</p>
                         <p className="text-lg font-semibold">
-                          {String(varResult.risk_profile || "-")
-                            .charAt(0)
-                            .toUpperCase() + String(varResult.risk_profile || "").slice(1)}
+                          {selectedInvestmentType === "SIP" 
+                            ? "High" 
+                            : selectedInvestmentType === "RD" 
+                            ? "Medium" 
+                            : selectedInvestmentType === "FD" 
+                            ? "Low" 
+                            : String(varResult.risk_profile || "-")
+                              .charAt(0)
+                              .toUpperCase() + String(varResult.risk_profile || "").slice(1)
+                          }
                         </p>
                       </CardContent>
                     </Card>
@@ -1064,10 +1082,14 @@ export function DecoderPolicyMarketHub() {
 
                   <div className="h-[360px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={varResult.yearly_projection}>
+                      <AreaChart data={varResult.yearly_projection} margin={{ top: 10, right: 30, left: 80, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year" />
-                        <YAxis tickFormatter={formatCurrency} />
+                        <YAxis 
+                          tickFormatter={formatCurrency} 
+                          tick={{ fontSize: 12 }}
+                          width={80}
+                        />
                         <Tooltip formatter={formatCurrency} />
                         <Legend />
                         <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} isAnimationActive={false} />

@@ -7,6 +7,7 @@ import os
 import re
 from typing import Any
 from datetime import datetime
+import google.generativeai as genai
 
 from models.schemas import (
     UserInput,
@@ -36,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Configure Gemini API
+genai.configure(api_key=os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE"))
 
 @app.get("/")
 def root():
@@ -414,3 +418,23 @@ def verify_advice_integrity(advice_text: str, stored_hash: str):
         "valid": computed_hash == stored_hash,
         "computed_hash": computed_hash
     }
+
+# Gemini prediction schema
+class GeminiRequest(BaseModel):
+    prompt: str
+
+@app.post("/api/gemini/predict")
+def gemini_predict(request: GeminiRequest):
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(request.prompt)
+        
+        return {
+            "response": response.text,
+            "status": "success"
+        }
+    except Exception as e:
+        return {
+            "response": f"Error: {str(e)}",
+            "status": "error"
+        }

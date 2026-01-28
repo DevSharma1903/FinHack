@@ -5,3 +5,4 @@ scikit-learn==1.6.0
 joblib
 numpy<2
 xgboost==3.0.4
+google-generativeai

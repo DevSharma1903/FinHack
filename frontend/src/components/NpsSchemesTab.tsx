@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useI18n } from "@/i18n/i18n";
+import { toast } from "sonner";
 
 type NavPoint = {
   date: string;
@@ -147,8 +149,10 @@ export function NpsSchemesTab() {
   const { t } = useI18n();
 
   const [data, setData] = React.useState<NavDataResponse | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [prediction, setPrediction] = React.useState<{ growth: string; explanation: string } | null>(null);
+  const [predicting, setPredicting] = React.useState(false);
 
   const [singlePfm, setSinglePfm] = React.useState<string>("");
   const [singleSchemeId, setSingleSchemeId] = React.useState<string>("");
@@ -270,6 +274,74 @@ export function NpsSchemesTab() {
     return computeDomainFromValues([...comparePointsA.map((p) => p.nav), ...comparePointsB.map((p) => p.nav)]);
   }, [comparePointsA, comparePointsB]);
 
+  const handleGeminiPrediction = async () => {
+    if (!singleSeries || singleSeries.points.length === 0) {
+      toast.error("No data available for prediction");
+      return;
+    }
+
+    setPredicting(true);
+    setPrediction(null);
+
+    try {
+      // Prepare data for Gemini
+      const navData = singleSeries.points.map(point => ({
+        date: point.date,
+        nav: point.nav
+      }));
+
+      const prompt = `
+        Analyze the following NPS NAV data for ${singleSeries.label} and predict the percentage growth for the next 5 years.
+        
+        NAV Data:
+        ${navData.map(d => `${d.date}: ${d.nav}`).join('\n')}
+        
+        Based on this historical data:
+        1. Calculate the overall trend and growth pattern
+        2. Consider any seasonal patterns or volatility
+        3. Predict the expected percentage growth over the next 5 years
+        4. Provide a brief explanation of your reasoning
+        
+        Please respond in this exact format:
+        GROWTH: [percentage]%
+        EXPLANATION: [your explanation]
+      `;
+
+      const response = await fetch('/api/gemini/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Prediction failed');
+      }
+
+      const result = await response.json();
+      
+      // Parse the response
+      const growthMatch = result.response.match(/GROWTH:\s*([0-9.]+)%/i);
+      const explanationMatch = result.response.match(/EXPLANATION:\s*(.+)/i);
+      
+      if (growthMatch && explanationMatch) {
+        setPrediction({
+          growth: growthMatch[1],
+          explanation: explanationMatch[1]
+        });
+        toast.success("Prediction generated successfully!");
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Prediction error:', error);
+      toast.error("Failed to generate prediction. Please try again.");
+    } finally {
+      setPredicting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-card border border-border rounded-lg shadow-sm">
@@ -366,6 +438,45 @@ export function NpsSchemesTab() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+          ) : null}
+
+          {/* Gemini Prediction Section */}
+          {singleSeries && singleChartData.length > 0 ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium text-foreground">
+                  AI Prediction for {singleSeries.label}
+                </div>
+                <Button
+                  onClick={handleGeminiPrediction}
+                  disabled={predicting}
+                  className="px-4 py-2 text-sm"
+                >
+                  {predicting ? "Predicting..." : "Predict for next 5 years"}
+                </Button>
+              </div>
+
+              {prediction && (
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-lg font-semibold text-blue-900">
+                          Predicted Growth: {prediction.growth}%
+                        </span>
+                      </div>
+                      <p className="text-sm text-blue-800 leading-relaxed">
+                        {prediction.explanation}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-2">
+                        *This prediction is based on historical data analysis and should not be considered as financial advice.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           ) : null}
         </CardContent>

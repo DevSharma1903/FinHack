@@ -43,7 +43,7 @@ const Index = () => {
 
   const [calculated, setCalculated] = useState(true);
   const [activeSection, setActiveSection] = useState(initialActiveSection);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const { t, language, isTranslating } = useI18n();
 
   const sections = [
@@ -72,18 +72,30 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-card">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-8 min-w-0">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground leading-none truncate">Invest$ure</p>
-              <p className="hidden sm:block text-xs text-muted-foreground mt-1 truncate">
-                <Trans>Real time simulations for SIP, FD, RD and retirement planning</Trans>
-              </p>
-            </div>
-
-            <div className="hidden md:block min-w-0">
-              <p className="text-xs text-muted-foreground">{t("Section")}</p>
-              <p className="text-sm font-medium text-foreground truncate">{activeLabel}</p>
-            </div>
+          <div className="flex items-center gap-4 min-w-0">
+            {/* Hamburger menu button */}
+            <button
+              onClick={() => setSidebarVisible(!sidebarVisible)}
+              className="flex flex-col items-center justify-center w-8 h-8 gap-1.5 hover:bg-muted/50 rounded-md transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <div className={`w-5 h-0.5 bg-foreground transition-transform ${sidebarVisible ? 'rotate-45 translate-y-1' : ''}`}></div>
+              <div className={`w-5 h-0.5 bg-foreground transition-opacity ${sidebarVisible ? 'opacity-0' : ''}`}></div>
+              <div className={`w-5 h-0.5 bg-foreground transition-transform ${sidebarVisible ? '-rotate-45 -translate-y-1' : ''}`}></div>
+            </button>
+            
+            <button
+              onClick={() => navigate("/")}
+              className="text-left hover:opacity-80 transition-opacity"
+            >
+              <div className="flex items-baseline" style={{ fontFamily: 'Cinzel, serif' }}>
+                <span className="text-base font-semibold tracking-tight text-foreground">I</span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">NVEST</span>
+                <span className="text-base font-semibold tracking-tight text-foreground">$</span>
+                <span className="text-sm font-semibold tracking-tight text-foreground">URE</span>
+              </div>
+              <div className="text-xs text-foreground font-medium tracking-wider text-center" style={{ fontFamily: 'Cinzel, serif' }}>RETIREMENT & INSURANCE</div>
+            </button>
           </div>
 
           <div className="flex items-center gap-2">
@@ -122,62 +134,45 @@ const Index = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
-        <div className="flex gap-6">
-          <aside
-            className={
-              "hidden md:flex shrink-0 flex-col border border-border bg-card rounded-lg shadow-sm overflow-hidden transition-[width] duration-200 " +
-              (sidebarCollapsed ? "w-16" : "w-56")
-            }
-          >
-            <div className="flex items-center justify-between px-3 py-3 border-b border-border">
-              <p
-                className={
-                  "text-xs font-medium text-muted-foreground overflow-hidden transition-[max-width,opacity] duration-200 " +
-                  (sidebarCollapsed ? "max-w-0 opacity-0" : "max-w-[140px] opacity-100")
-                }
-              >
-                {t("Sections")}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setSidebarCollapsed((v) => !v)}
-                className="h-8 w-8 px-0"
-                aria-label={sidebarCollapsed ? t("Expand sidebar") : t("Collapse sidebar")}
-              >
-                {sidebarCollapsed ? ">" : "<"}
-              </Button>
-            </div>
+        <div className="flex gap-8">
+          {sidebarVisible ? (
+            <aside
+              className="hidden md:flex shrink-0 flex-col border border-border bg-card rounded-lg shadow-sm overflow-hidden w-56"
+            >
+              <div className="px-3 py-3 border-b border-border">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("Sections")}
+                </p>
+              </div>
 
-            <nav className="p-2 space-y-1">
-              {sections.map((s) => {
-                const isActive = activeSection === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setActiveSection(s.id)}
-                    className={
-                      "w-full flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors duration-200 " +
-                      (isActive ? "bg-secondary text-foreground" : "hover:bg-muted/40 text-muted-foreground")
-                    }
-                  >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-muted/20 text-xs font-semibold text-foreground">
-                      {s.short}
-                    </span>
-                    <span
+              <nav className="p-2 space-y-1">
+                {sections.map((s) => {
+                  const isActive = activeSection === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveSection(s.id);
+                        setSidebarVisible(false); // Auto-collapse when section is clicked
+                      }}
                       className={
-                        "whitespace-nowrap overflow-hidden transition-[max-width,opacity] duration-200 " +
-                        (sidebarCollapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100")
+                        "w-full flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors duration-200 " +
+                        (isActive ? "bg-secondary text-foreground" : "hover:bg-muted/40 text-muted-foreground")
                       }
                     >
-                      {s.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </nav>
-          </aside>
+                      <span className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-muted/20 text-xs font-semibold text-foreground">
+                        {s.short}
+                      </span>
+                      <span className="whitespace-nowrap">
+                        {s.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
+          ) : null}
 
           <main className="min-w-0 flex-1">
             <div className="space-y-6">
@@ -196,53 +191,72 @@ const Index = () => {
                 <div className="space-y-6">
                   <ComparisonToggle showComparison={showComparison} setShowComparison={setShowComparison} />
 
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="lg:col-span-5">
-                      <div className={showComparison ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : "space-y-4"}>
+                  {showComparison ? (
+                    // Comparison mode: Full width layout
+                    <div className="space-y-6">
+                      {/* Input sections side by side */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <InputSection inputs={inputs} updateInput={updateInput} onCalculate={handleCalculate} title={t("Scenario A")} />
-
-                        {showComparison && (
-                          <InputSection
-                            inputs={comparisonInputs}
-                            updateInput={updateComparisonInput}
-                            onCalculate={handleCalculate}
-                            title={t("Scenario B")}
-                            isComparison
-                          />
-                        )}
+                        <InputSection
+                          inputs={comparisonInputs}
+                          updateInput={updateComparisonInput}
+                          onCalculate={handleCalculate}
+                          title={t("Scenario B")}
+                          isComparison
+                        />
+                      </div>
+                      
+                      {/* Results side by side */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Scenario A Results")}</h3>
+                          <ResultCards results={results} />
+                          <DetailedStats results={results} />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Scenario B Results")}</h3>
+                          <ResultCards results={comparisonResults} isComparison />
+                          <DetailedStats results={comparisonResults} />
+                        </div>
+                      </div>
+                      
+                      {/* Comparison dashboard */}
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Comparison Dashboard")}</h3>
+                        <StackedChart
+                          data={results.yearlyData}
+                          comparisonData={comparisonResults.yearlyData}
+                          showComparison={true}
+                        />
                       </div>
                     </div>
+                  ) : (
+                    // Normal mode: Original layout
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      <div className="lg:col-span-5">
+                        <div className="space-y-4">
+                          <InputSection inputs={inputs} updateInput={updateInput} onCalculate={handleCalculate} title={t("Scenario A")} />
+                        </div>
+                      </div>
 
-                    <div className="lg:col-span-7 space-y-4">
-                      {calculated && (
-                        <>
-                          <div className={showComparison ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : "space-y-4"}>
+                      <div className="lg:col-span-7 space-y-4">
+                        {calculated && (
+                          <div className="space-y-4">
                             <div className="space-y-2">
-                              <h3 className="text-sm font-medium text-muted-foreground px-1">
-                                {showComparison ? t("Scenario A Results") : t("Your Results")}
-                              </h3>
+                              <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Your Results")}</h3>
                               <ResultCards results={results} />
                               <DetailedStats results={results} />
                             </div>
-
-                            {showComparison && (
-                              <div className="space-y-2">
-                                <h3 className="text-sm font-medium text-muted-foreground px-1">{t("Scenario B Results")}</h3>
-                                <ResultCards results={comparisonResults} isComparison />
-                                <DetailedStats results={comparisonResults} />
-                              </div>
-                            )}
+                            <StackedChart
+                              data={results.yearlyData}
+                              comparisonData={null}
+                              showComparison={false}
+                            />
                           </div>
-
-                          <StackedChart
-                            data={results.yearlyData}
-                            comparisonData={showComparison ? comparisonResults.yearlyData : null}
-                            showComparison={showComparison}
-                          />
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ) : null}
 

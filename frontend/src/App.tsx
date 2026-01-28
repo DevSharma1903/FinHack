@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/i18n/i18n";
 import NotFound from "./pages/NotFound";
-import Landing from "./pages/Landing";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Index from "./pages/Index.jsx";
@@ -22,7 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* Landing page: plain white, no theme wrapper */}
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<LandingPage />} />
           
           {/* Authentication routes */}
           <Route 

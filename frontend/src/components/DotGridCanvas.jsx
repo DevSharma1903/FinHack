@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const GREEN_RGB = { r: 0, g: 208, b: 156 };
+const PRIMARY_RGB = { r: 55, g: 120, b: 255 }; // hsl(217, 84%, 55%) converted to RGB
 
 export default function DotGridCanvas({ className = "" }) {
   const canvasRef = useRef(null);
@@ -12,8 +12,8 @@ export default function DotGridCanvas({ className = "" }) {
     const { w, h } = size;
     if (!w || !h) return [];
 
-    const step = 12;
-    const margin = 12;
+    const step = 8;
+    const margin = 8;
 
     const list = [];
     for (let y = margin; y <= h - margin; y += step) {
@@ -76,7 +76,7 @@ export default function DotGridCanvas({ className = "" }) {
         let x = d.x0 + Math.sin(t * 0.0012 * d.speed + d.phase) * baseDrift;
         let y = d.y0 + Math.cos(t * 0.0011 * d.speed + d.phase) * baseDrift;
 
-        let alpha = 0.65;
+        let alpha = 0.85;
         const r = 1.2;
 
         if (hover.inside) {
@@ -98,7 +98,7 @@ export default function DotGridCanvas({ className = "" }) {
 
         ctx.save();
         ctx.globalAlpha = alpha;
-        ctx.fillStyle = `rgb(${GREEN_RGB.r}, ${GREEN_RGB.g}, ${GREEN_RGB.b})`;
+        ctx.fillStyle = `rgb(${PRIMARY_RGB.r}, ${PRIMARY_RGB.g}, ${PRIMARY_RGB.b})`;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();

@@ -104,27 +104,50 @@ const PolicySection = () => {
       title: "Financial Literacy Resources",
       content: (
         <div className="space-y-4">
-          <div className="p-4 bg-muted/20 border border-border rounded-lg">
-            <h4 className="font-medium text-foreground">Interactive learning (coming soon)</h4>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Interactive modules and quizzes to enhance your financial knowledge.
-            </p>
-          </div>
-
           <div className="space-y-3">
             <h4 className="font-medium text-foreground">Recommended Reading</h4>
             <div className="space-y-2">
-              {[
-                "RBI's Financial Education Initiative",
-                "SEBI's Investor Education Program", 
-                "PFRDA's Pension Awareness Campaign"
-              ].map((resource, index) => (
-                <div key={index} className="p-3 bg-card rounded-lg border border-border hover:bg-secondary transition-colors duration-200">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{resource}</span>
-                  </div>
+              <a 
+                href="https://www.rbi.org.in/FinancialEducation/Home.aspx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-3 bg-card rounded-lg border border-border hover:bg-secondary transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground hover:text-primary">RBI's Financial Education Initiative</span>
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
                 </div>
-              ))}
+              </a>
+              
+              <a 
+                href="https://investor.sebi.gov.in/iematerial.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-3 bg-card rounded-lg border border-border hover:bg-secondary transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground hover:text-primary">SEBI's Investor Education Program</span>
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </a>
+              
+              <a 
+                href="https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2174235&reg=3&lang=2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-3 bg-card rounded-lg border border-border hover:bg-secondary transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground hover:text-primary">PFRDA's Pension Awareness Campaign</span>
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </a>
             </div>
           </div>
         </div>
