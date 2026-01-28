@@ -284,9 +284,6 @@ export function PolicyMarketHub({
                   </Badge>
                 ) : null}
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("Uses your backend model to estimate premium, coverage gap, recommended bundle, and impact on SIP corpus.")}
-              </p>
 
               <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="lg:col-span-7">

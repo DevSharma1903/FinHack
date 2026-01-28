@@ -444,7 +444,7 @@ export function NpsSchemesTab() {
           {/* Gemini Prediction Section */}
           {singleSeries && singleChartData.length > 0 ? (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div className="text-sm font-medium text-foreground">
                   AI Prediction for {singleSeries.label}
                 </div>
@@ -455,7 +455,7 @@ export function NpsSchemesTab() {
                 >
                   {predicting ? "Predicting..." : "Predict for next 5 years"}
                 </Button>
-              </div>
+              </div> */}
 
               {prediction && (
                 <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
