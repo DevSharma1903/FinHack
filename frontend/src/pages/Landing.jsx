@@ -1,35 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import DotGridCanvas from "@/components/DotGridCanvas.jsx";
-// import { LanguageSelector } from "@/components/LanguageSelector";
-
-const GREEN = "#00d09c";
-
-function useRevealOnce(options = { threshold: 0.2 }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry?.isIntersecting) {
-        setVisible(true);
-        io.disconnect();
-      }
-    }, options);
-
-    io.observe(el);
-    return () => io.disconnect();
-  }, [options.threshold]);
-
-  return { ref, visible };
-}
+import { Button } from "@/components/ui/button";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { ref: dashboardRef, visible: dashboardVisible } = useRevealOnce({ threshold: 0.1 });
 
   const cards = useMemo(
     () => [
@@ -44,107 +18,46 @@ export default function Landing() {
   );
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      {/* Header with language selector and login button */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-black/5">
-        <div className="mx-auto max-w-6xl px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-xl font-semibold tracking-tight">Invest$ure</div>
-            <div className="flex items-center gap-3">
-              {/* <LanguageSelector /> */}
-              <button
-                onClick={() => navigate("/login")}
-                className="rounded-full px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: GREEN }}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => navigate("/signup")}
-                className="rounded-full px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: GREEN }}
-              >
-                Sign Up
-              </button>
-            </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 md:px-8 h-16 flex items-center justify-between gap-4">
+          <div className="text-sm font-semibold">Invest$ure</div>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" onClick={() => navigate("/login")}>Login</Button>
+            <Button type="button" onClick={() => navigate("/signup")}>Sign Up</Button>
           </div>
         </div>
       </header>
 
-      {/* Hero section with dot grid background */}
-      <section className="relative min-h-screen overflow-hidden pt-20">
-        {/* Dot grid covering bottom 50% of viewport */}
-        <div className="absolute bottom-0 left-0 right-0 h-[50vh] z-0">
-          <DotGridCanvas />
-        </div>
+      <main className="mx-auto max-w-7xl px-4 md:px-8 py-10">
+        <section className="max-w-3xl">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Invest$ure</h1>
+          <p className="mt-3 text-sm md:text-base text-muted-foreground">
+            Real time simulations for SIP, FD, RD and retirement planning.
+          </p>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-6 pt-20 pb-10">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-semibold tracking-tight">Invest$ure</h1>
-            <p className="mt-4 text-base md:text-lg text-black/70">
-              Real time simulations for SIP, FD, RD and retirement planning
-            </p>
+          <div className="mt-6 flex items-center gap-3">
+            <Button type="button" onClick={() => navigate("/decoder")}>Get started</Button>
+            <Button type="button" variant="outline" onClick={() => navigate("/retirement")}>Try retirement planner</Button>
+          </div>
+        </section>
 
-            <div className="mt-8 flex items-center justify-center gap-3">
+        <section className="mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cards.map((c) => (
               <button
-                onClick={() => navigate("/decoder")}
-                className="rounded-full px-6 py-3 text-sm md:text-base font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: GREEN }}
+                key={c.path}
+                type="button"
+                onClick={() => navigate(c.path)}
+                className="text-left bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
               >
-                Get Started
+                <p className="text-sm font-semibold text-foreground">{c.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">Open module</p>
               </button>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* Mini dashboard section - slides in from left on scroll */}
-      <section className="relative z-20 min-h-screen flex items-center justify-center bg-white">
-        <div className="mx-auto max-w-4xl px-6 w-full">
-          <div
-            ref={dashboardRef}
-            className={[
-              "rounded-2xl border border-black/10 bg-white",
-              "transition-all duration-1000 ease-out",
-              dashboardVisible 
-                ? "opacity-100 translate-x-0" 
-                : "opacity-0 -translate-x-full",
-            ].join(" ")}
-          >
-            <div className="p-6 md:p-8 text-center">
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Financial planning, simplified.</h2>
-              <p className="mt-2 text-sm md:text-base text-black/70">
-                Run real-time simulations for SIP, RD, FD, retirement planning and insurance coverage.
-              </p>
-            </div>
-
-            <div className="px-6 md:px-8 pb-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {cards.map((c) => (
-                  <button
-                    key={c.title}
-                    onClick={() => navigate(c.path)}
-                    className={[
-                      "group w-full text-left",
-                      "rounded-xl border border-black/10 bg-white px-5 py-4",
-                      "transition-all duration-200",
-                      "hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)]",
-                      "focus:outline-none focus:ring-2 focus:ring-black/20",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-base font-medium">{c.title}</div>
-                      <div className="text-black/40 transition-transform duration-200 group-hover:translate-x-0.5">→</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="h-20" />
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }

@@ -40,17 +40,17 @@ const buildEducationContent = (t) => [
         </div>
 
         <div className="space-y-4 mt-6">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">{translateNode("FD > RD in returns if:", t)}</h4>
-            <ul className="list-disc pl-5 space-y-1 text-blue-700 dark:text-blue-300">
+          <div className="p-4 bg-muted/20 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">{translateNode("FD > RD in returns if:", t)}</h4>
+            <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
               <li>{translateNode("Interest rate is the same", t)}</li>
               <li>{translateNode("Total invested amount is the same", t)}</li>
             </ul>
           </div>
 
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">{translateNode("RD is better if:", t)}</h4>
-            <ul className="list-disc pl-5 space-y-1 text-blue-700 dark:text-blue-300">
+          <div className="p-4 bg-muted/20 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">{translateNode("RD is better if:", t)}</h4>
+            <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
               <li>{translateNode("You don't have a lump sum", t)}</li>
               <li>{translateNode("You want disciplined monthly savings", t)}</li>
 
@@ -220,14 +220,11 @@ export const EducationSection = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
-          <CardTitle className="flex items-center gap-3 text-2xl">
-            <span className="text-3xl">📚</span>
-            {t("Investment Education Hub")}
-          </CardTitle>
+      <Card className="bg-card border border-border rounded-lg shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-foreground">{t("Investment Education Hub")}</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6 space-y-6">
+        <CardContent className="pt-0 space-y-6">
           <div className="space-y-2">
             <p className="text-muted-foreground">
               {t("Learn how different investment options are taxed and how to optimize your returns.")}
@@ -241,24 +238,22 @@ export const EducationSection = () => {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="border rounded-lg overflow-hidden hover:bg-muted/5 transition-colors"
+                className="border border-border rounded-lg overflow-hidden hover:bg-muted/30 transition-colors duration-200"
               >
                 <AccordionTrigger className="px-4 py-3 hover:no-underline">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{item.emoji}</span>
                     <span className="text-left font-medium">{t(item.title)}</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-muted/5">
+                <AccordionContent className="px-4 pb-4 pt-2 bg-muted/20">
                   {item.content}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
 
-          <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+          <div className="mt-6 p-4 bg-secondary rounded-lg border border-border">
             <div className="flex items-start gap-3">
-              <div className="text-2xl mt-1">�</div>
               <div>
                 <h3 className="font-medium mb-2">{t("Key Insight")}</h3>
                 <p className="text-sm text-muted-foreground">

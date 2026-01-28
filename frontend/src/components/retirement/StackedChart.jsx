@@ -16,7 +16,7 @@ const CustomTooltip = ({ active, payload, label, t }) => {
       <div className="rounded-lg p-3 border border-border bg-card">
         <p className="text-sm font-semibold text-foreground mb-2">{t("Age:")} {label} {t("years")}</p>
         {payload.map((entry, index) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
+          <p key={index} className="text-sm text-foreground">
             {entry.name}: {formatCurrency(entry.value)}
           </p>
         ))}
@@ -40,7 +40,7 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
   }));
 
   return (
-    <div className="glass rounded-2xl p-5 animate-fade-in" style={{ animationDelay: "300ms" }}>
+    <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
       <h3 className="text-lg font-semibold text-foreground mb-4">{t("Growth Over Time")}</h3>
       <div className="h-[26rem] md:h-[32rem]">
         <ResponsiveContainer width="100%" height="100%">
@@ -68,31 +68,25 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
               type="monotone"
               dataKey="principal"
               stackId="1"
-              stroke="hsl(195, 100%, 65%)"
-              fill="hsl(195, 100%, 65%)"
-              fillOpacity={0.3}
+              stroke="hsl(var(--primary))"
+              fill="hsl(var(--primary))"
+              fillOpacity={0.12}
               name={t("Principal (A)")}
-              strokeWidth={3}
+              strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(195, 100%, 75%)", fill: "hsl(195, 100%, 65%)" }}
-              isAnimationActive
-              animationDuration={1200}
-              animationEasing="ease-out"
+              isAnimationActive={false}
             />
             <Area
               type="monotone"
               dataKey="returns"
               stackId="1"
-              stroke="hsl(142, 76%, 50%)"
-              fill="hsl(142, 76%, 50%)"
-              fillOpacity={0.3}
+              stroke="hsl(var(--success))"
+              fill="hsl(var(--success))"
+              fillOpacity={0.10}
               name={t("Returns (A)")}
-              strokeWidth={3}
+              strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(142, 76%, 60%)", fill: "hsl(142, 76%, 50%)" }}
-              isAnimationActive
-              animationDuration={1400}
-              animationEasing="ease-out"
+              isAnimationActive={false}
             />
             
             {showComparison && (
@@ -101,31 +95,25 @@ export function StackedChart({ data, comparisonData = null, showComparison = fal
                   type="monotone"
                   dataKey="principalB"
                   stackId="2"
-                  stroke="hsl(250, 70%, 65%)"
-                  fill="hsl(250, 70%, 65%)"
-                  fillOpacity={0.25}
+                  stroke="hsl(var(--muted-foreground))"
+                  fill="hsl(var(--muted-foreground))"
+                  fillOpacity={0.08}
                   name={t("Principal (B)")}
-                  strokeWidth={3}
+                  strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(250, 70%, 75%)", fill: "hsl(250, 70%, 65%)" }}
-                  isAnimationActive
-                  animationDuration={1200}
-                  animationEasing="ease-out"
+                  isAnimationActive={false}
                 />
                 <Area
                   type="monotone"
                   dataKey="returnsB"
                   stackId="2"
-                  stroke="hsl(45, 100%, 55%)"
-                  fill="hsl(45, 100%, 55%)"
-                  fillOpacity={0.25}
+                  stroke="hsl(var(--border))"
+                  fill="hsl(var(--border))"
+                  fillOpacity={0.10}
                   name={t("Returns (B)")}
-                  strokeWidth={3}
+                  strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(45, 100%, 65%)", fill: "hsl(45, 100%, 55%)" }}
-                  isAnimationActive
-                  animationDuration={1400}
-                  animationEasing="ease-out"
+                  isAnimationActive={false}
                 />
               </>
             )}

@@ -12,12 +12,9 @@ const PolicySection = () => {
       title: "Latest Policy Updates",
       content: (
         <div className="space-y-4">
-          <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <h4 className="font-medium text-blue-300">RSS Feed Integration Coming Soon</h4>
-            </div>
-            <p className="text-sm text-blue-200/80">
+          <div className="p-4 bg-muted/20 border border-border rounded-lg">
+            <h4 className="font-medium text-foreground">RSS feed integration (coming soon)</h4>
+            <p className="mt-2 text-sm text-muted-foreground">
               Stay tuned for real-time policy updates and regulatory announcements from financial authorities.
             </p>
           </div>
@@ -28,41 +25,41 @@ const PolicySection = () => {
       title: "Government Schemes & Benefits",
       content: (
         <div className="space-y-6">
-          <div className="p-4 bg-card/50 rounded-lg border border-border/50">
-            <h4 className="font-semibold text-primary mb-3">
+          <div className="p-4 bg-card rounded-lg border border-border">
+            <h4 className="font-semibold text-foreground mb-3">
               Pradhan Mantri Jan Dhan Yojana (PMJDY)
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>Zero balance savings account</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>RuPay debit card with accident insurance</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>Overdraft facility after 6 months</span>
               </li>
             </ul>
           </div>
 
-          <div className="p-4 bg-card/50 rounded-lg border border-border/50">
-            <h4 className="font-semibold text-primary mb-3">
+          <div className="p-4 bg-card rounded-lg border border-border">
+            <h4 className="font-semibold text-foreground mb-3">
               Atal Pension Yojana (APY)
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>Guaranteed pension after 60 years</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>Co-contribution by government</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">✓</span>
+                <span className="text-muted-foreground mt-1">•</span>
                 <span>Tax benefits under Section 80CCD</span>
               </li>
             </ul>
@@ -92,7 +89,7 @@ const PolicySection = () => {
                   ["24(b)", "Home Loan Interest", "2,00,000"]
                 ].map(([section, benefit, limit], index) => (
                   <tr key={index} className={index % 2 === 0 ? "bg-muted/5" : ""}>
-                    <td className="border p-3 font-mono font-medium text-primary">{section}</td>
+                    <td className="border p-3 font-mono font-medium text-foreground">{section}</td>
                     <td className="border p-3">{benefit}</td>
                     <td className="border p-3">{limit}</td>
                   </tr>
@@ -107,12 +104,9 @@ const PolicySection = () => {
       title: "Financial Literacy Resources",
       content: (
         <div className="space-y-4">
-          <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <h4 className="font-medium text-green-300">Coming Soon: Interactive Learning</h4>
-            </div>
-            <p className="text-sm text-green-200/80">
+          <div className="p-4 bg-muted/20 border border-border rounded-lg">
+            <h4 className="font-medium text-foreground">Interactive learning (coming soon)</h4>
+            <p className="mt-2 text-sm text-muted-foreground">
               Interactive modules and quizzes to enhance your financial knowledge.
             </p>
           </div>
@@ -125,7 +119,7 @@ const PolicySection = () => {
                 "SEBI's Investor Education Program", 
                 "PFRDA's Pension Awareness Campaign"
               ].map((resource, index) => (
-                <div key={index} className="p-3 bg-card/30 rounded-lg border border-border/30 hover:bg-card/40 transition-colors">
+                <div key={index} className="p-3 bg-card rounded-lg border border-border hover:bg-secondary transition-colors duration-200">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{resource}</span>
                   </div>
@@ -160,9 +154,9 @@ const PolicySection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold text-foreground">Policy & Regulations</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">Policy & Regulations</h1>
+        <p className="text-sm md:text-base text-muted-foreground max-w-2xl">
           Stay informed about the latest financial policies, government schemes, and regulatory updates.
         </p>
       </div>
@@ -172,7 +166,7 @@ const PolicySection = () => {
           <AccordionItem 
             key={index} 
             value={`item-${index}`}
-            className="border border-border rounded-lg overflow-hidden bg-card hover:bg-card/80 transition-all duration-200"
+            className="border border-border rounded-lg overflow-hidden bg-card hover:bg-secondary transition-colors duration-200"
           >
             <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/5">
               <div className="flex items-center justify-between w-full">

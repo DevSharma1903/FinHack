@@ -29,7 +29,7 @@ export function ResultCards({ results, isComparison = false }) {
       subValue: results.inflationAdjusted,
       subLabel: t("Inflation adjusted"),
       icon: TrendingUp,
-      textColor: "text-primary",
+      textColor: "text-foreground",
     },
     {
       title: t("Investment Amount"),
@@ -43,21 +43,20 @@ export function ResultCards({ results, isComparison = false }) {
       subValue: returnPct === null ? null : `+${returnPct.toFixed(1)}%`,
       subLabel: t("gain"),
       icon: PiggyBank,
-      textColor: "text-accent",
+      textColor: "text-foreground",
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {cards.map((card, index) => (
+      {cards.map((card) => (
         <div
           key={card.title}
-          className={`glass-strong rounded-2xl p-5 animate-fade-in transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${isComparison ? "border-accent/50 glow-accent" : ""}`}
-          style={{ animationDelay: `${index * 100}ms` }}
+          className={`bg-card border border-border rounded-lg p-5 shadow-sm transition-shadow duration-200 hover:shadow-md ${isComparison ? "ring-1 ring-border" : ""}`}
         >
           <div className="flex items-start justify-between mb-3">
-            <div className="p-2 rounded-xl bg-primary/20 border border-primary/30 backdrop-blur-sm">
-              <card.icon className="w-5 h-5 text-primary" />
+            <div className="p-2 rounded-md bg-muted border border-border">
+              <card.icon className="w-5 h-5 text-foreground" />
             </div>
             {card.subValue && typeof card.subValue === "string" && card.subValue.startsWith("+") && (
               <span className="text-sm font-semibold px-2 py-1 rounded-full border border-border">

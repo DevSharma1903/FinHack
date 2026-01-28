@@ -26,10 +26,10 @@ export function InputSection({ inputs, updateInput, onCalculate, title, isCompar
   };
 
   return (
-    <div className={`glass-strong rounded-2xl p-6 space-y-6 transition-all duration-300 ${isComparison ? "border-accent/50 glow-accent" : "hover:shadow-xl"}`}>
+    <div className={`bg-card border border-border rounded-lg p-6 space-y-6 shadow-sm ${isComparison ? "ring-1 ring-border" : ""}`}>
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
-          <Calculator className="w-5 h-5 text-primary-foreground" />
+        <div className="p-2 rounded-md bg-muted border border-border">
+          <Calculator className="w-5 h-5 text-foreground" />
         </div>
         <h2 className="text-xl font-semibold text-foreground">{displayTitle}</h2>
       </div>
@@ -73,7 +73,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title, isCompar
             <span>45</span>
             <span>75</span>
           </div>
-          <p className="text-xs text-accent font-medium">
+          <p className="text-xs text-muted-foreground font-medium">
             {inputs.retirementAge - inputs.currentAge} {t("years until retirement")}
           </p>
         </div>
@@ -97,7 +97,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title, isCompar
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-medium text-muted-foreground">{t("Expected Return (p.a.)")}</Label>
-            <span className="text-lg font-semibold text-accent">{inputs.expectedReturn}%</span>
+            <span className="text-lg font-semibold text-foreground">{inputs.expectedReturn}%</span>
           </div>
           <Slider
             value={[inputs.expectedReturn]}
@@ -117,7 +117,7 @@ export function InputSection({ inputs, updateInput, onCalculate, title, isCompar
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-medium text-muted-foreground">{t("Assumed Inflation")}</Label>
-            <span className="text-lg font-semibold text-destructive">{inputs.inflation}%</span>
+            <span className="text-lg font-semibold text-foreground">{inputs.inflation}%</span>
           </div>
           <Slider
             value={[inputs.inflation]}
@@ -138,15 +138,15 @@ export function InputSection({ inputs, updateInput, onCalculate, title, isCompar
           <Label className="text-sm font-medium text-muted-foreground">{t("Investment Type")}</Label>
           <Tabs value={inputs.investmentType} onValueChange={(value) => updateInput("investmentType", value)}>
             <TabsList className="grid w-full grid-cols-3 bg-secondary">
-              <TabsTrigger value="sip" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="sip" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-border">
                 <TrendingUp className="w-4 h-4" />
                 SIP
               </TabsTrigger>
-              <TabsTrigger value="rd" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="rd" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-border">
                 <Wallet className="w-4 h-4" />
                 RD
               </TabsTrigger>
-              <TabsTrigger value="fd" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="fd" className="flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-border">
                 <PiggyBank className="w-4 h-4" />
                 FD
               </TabsTrigger>

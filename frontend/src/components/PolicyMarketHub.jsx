@@ -141,7 +141,7 @@ export function PolicyMarketHub({
   }
 
   return (
-    <Card className="glass">
+    <Card className="bg-card border border-border rounded-lg shadow-sm">
       {!hideHeader ? (
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-4">
@@ -157,19 +157,19 @@ export function PolicyMarketHub({
 
       <CardContent>
         <Tabs value={tabValue} onValueChange={setTabValue}>
-          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 glass p-1">
+          <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-muted border border-border rounded-md p-1">
             {visibleTabs.includes("curves") ? (
-              <TabsTrigger value="curves" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+              <TabsTrigger value="curves" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Growth Curves")}
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("insurance") ? (
-              <TabsTrigger value="insurance" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+              <TabsTrigger value="insurance" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Insurance")}
               </TabsTrigger>
             ) : null}
             {visibleTabs.includes("education") ? (
-              <TabsTrigger value="education" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+              <TabsTrigger value="education" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Education")}
               </TabsTrigger>
             ) : null}
@@ -178,7 +178,7 @@ export function PolicyMarketHub({
           <TabsContent value="curves" className="mt-4">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div className="lg:col-span-5">
-                <div className="glass-strong rounded-2xl p-5 space-y-4">
+                <div className="bg-card border border-border rounded-lg p-6 shadow-sm space-y-4">
                   <p className="text-sm font-semibold text-foreground">{t("Curve inputs")}</p>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -216,27 +216,27 @@ export function PolicyMarketHub({
                   <Separator />
 
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-xs text-muted-foreground">{t("SIP corpus")}</p>
-                      <p className="mt-2 text-base font-semibold text-primary">{formatCurrency(curveResults.sip.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.sip.totalCorpus)}</p>
                     </div>
-                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-xs text-muted-foreground">{t("RD corpus")}</p>
-                      <p className="mt-2 text-base font-semibold text-success">{formatCurrency(curveResults.rd.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.rd.totalCorpus)}</p>
                     </div>
-                    <div className="glass rounded-2xl p-4 hover:border-primary/40 transition-all duration-200">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-xs text-muted-foreground">{t("FD corpus")}</p>
-                      <p className="mt-2 text-base font-semibold text-accent-foreground">{formatCurrency(curveResults.fd.totalCorpus)}</p>
+                      <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(curveResults.fd.totalCorpus)}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-7">
-                <div className="glass-strong rounded-2xl p-5">
+                <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">{t("SIP vs RD vs FD")}</p>
-                    <Badge variant="secondary" className="bg-secondary border-primary/20">{t("calculated")}</Badge>
+                    <Badge variant="secondary" className="bg-secondary border border-border text-foreground">{t("calculated")}</Badge>
                   </div>
 
                   <div className="mt-4 h-[22rem] md:h-[28rem]">
@@ -252,7 +252,7 @@ export function PolicyMarketHub({
                               <div className="rounded-lg p-3 border border-border bg-card">
                                 <p className="text-sm font-semibold text-foreground mb-2">{t("Year:")} {label}</p>
                                 {payload.map((p) => (
-                                  <p key={p.dataKey} className="text-sm" style={{ color: p.color }}>
+                                  <p key={p.dataKey} className="text-sm text-foreground">
                                     {String(p.name)}: {formatCurrency(p.value)}
                                   </p>
                                 ))}
@@ -260,11 +260,12 @@ export function PolicyMarketHub({
                             );
                           }}
                         />
+
                         <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
 
-                        <Area type="monotone" dataKey="sip" name={t("SIP")} stroke="hsl(195, 100%, 65%)" fill="hsl(195, 100%, 65%)" fillOpacity={0.25} strokeWidth={3} dot={false} isAnimationActive animationDuration={1200} />
-                        <Area type="monotone" dataKey="rd" name={t("RD")} stroke="hsl(142, 76%, 50%)" fill="hsl(142, 76%, 50%)" fillOpacity={0.25} strokeWidth={3} dot={false} isAnimationActive animationDuration={1300} />
-                        <Area type="monotone" dataKey="fd" name={t("FD")} stroke="hsl(250, 70%, 65%)" fill="hsl(250, 70%, 65%)" fillOpacity={0.2} strokeWidth={3} dot={false} isAnimationActive animationDuration={1400} />
+                        <Area type="monotone" dataKey="sip" name={t("SIP")} stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} strokeWidth={2} dot={false} isAnimationActive={false} />
+                        <Area type="monotone" dataKey="rd" name={t("RD")} stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.12)" fillOpacity={1} strokeWidth={2} dot={false} isAnimationActive={false} />
+                        <Area type="monotone" dataKey="fd" name={t("FD")} stroke="hsl(var(--foreground) / 0.70)" fill="hsl(var(--foreground) / 0.08)" fillOpacity={1} strokeWidth={2} dot={false} isAnimationActive={false} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -274,11 +275,11 @@ export function PolicyMarketHub({
           </TabsContent>
 
           <TabsContent value="insurance" className="mt-4">
-            <div className="glass rounded-2xl p-5">
+            <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-foreground">{t("Insurance analysis")}</p>
                 {insuranceResult?.insurance_status ? (
-                  <Badge variant="secondary" className="bg-secondary border-primary/20">
+                  <Badge variant="secondary" className="bg-secondary border border-border text-foreground">
                     {String(insuranceResult.insurance_status)}
                   </Badge>
                 ) : null}
@@ -335,21 +336,21 @@ export function PolicyMarketHub({
                 <div className="lg:col-span-5">
                   {insuranceResult ? (
                     <div className="grid grid-cols-1 gap-3">
-                      <div className="glass rounded-2xl p-4">
+                      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-muted-foreground">{t("Required cover")}</p>
                         <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(Number(insuranceResult.required_cover) || 0)}</p>
                       </div>
-                      <div className="glass rounded-2xl p-4">
+                      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-muted-foreground">{t("Coverage gap")}</p>
                         <p className="mt-2 text-base font-semibold text-foreground">{formatCurrency(Number(insuranceResult.coverage_gap) || 0)}</p>
                       </div>
-                      <div className="glass rounded-2xl p-4">
+                      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-muted-foreground">{t("Premium (monthly / annual)")}</p>
                         <p className="mt-2 text-base font-semibold text-foreground">
                           {formatCurrency(Number(insuranceResult.monthly_premium) || 0)} / {formatCurrency(Number(insuranceResult.annual_premium) || 0)}
                         </p>
                       </div>
-                      <div className="glass rounded-2xl p-4">
+                      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-muted-foreground">{t("Recommended bundle")}</p>
                         {Array.isArray(insuranceResult.recommended_bundle) && insuranceResult.recommended_bundle.length ? (
                           <div className="mt-2 space-y-1">
@@ -361,7 +362,7 @@ export function PolicyMarketHub({
                           <p className="mt-2 text-sm text-muted-foreground">-</p>
                         )}
                       </div>
-                      <div className="glass rounded-2xl p-4">
+                      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-muted-foreground">{t("SIP impact (20Y Monte Carlo)")}</p>
                         <p className="mt-2 text-sm text-muted-foreground">
                           Mean corpus: <span className="font-semibold text-foreground">{formatCurrency(Number(insuranceResult.sip_impact?.mean_corpus) || 0)}</span>
@@ -372,7 +373,7 @@ export function PolicyMarketHub({
                       </div>
                     </div>
                   ) : (
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm text-muted-foreground">{t("Run analysis to see results.")}</p>
                     </div>
                   )}
@@ -384,7 +385,7 @@ export function PolicyMarketHub({
           <TabsContent value="education" className="mt-4">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div className="lg:col-span-7">
-                <div className="glass rounded-2xl p-5">
+                <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-foreground">{t("India tax basics for SIP, RD, FD and retirement planning")}</p>
                     <Badge variant="secondary" className="bg-secondary">{t("library")}</Badge>
@@ -422,36 +423,36 @@ export function PolicyMarketHub({
               </div>
 
               <div className="lg:col-span-5">
-                <div className="glass rounded-2xl p-5 space-y-3">
+                <div className="bg-card border border-border rounded-lg p-6 shadow-sm space-y-3">
                   <p className="text-sm font-semibold text-foreground">{t("Education layer")}</p>
                   <p className="text-sm text-muted-foreground">{t("Quick reference for common Indian tax-saving choices and where they fit in a retirement plan.")}</p>
 
                   <div className="space-y-3">
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm font-medium text-foreground">{t("80C (deduction)")}</p>
                       <p className="mt-2 text-sm text-muted-foreground">
                         {t("Common buckets include EPF/VPF, PPF, ELSS, life insurance premium, home-loan principal, SCSS and Sukanya.")}
                       </p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm font-medium text-foreground">{t("NPS (80CCD)")}</p>
                       <p className="mt-2 text-sm text-muted-foreground">
                         {t("Contributions can qualify under 80CCD(1) (within overall limit), 80CCD(1B) (additional), and 80CCD(2) for employer contributions (if applicable).")}
                       </p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm font-medium text-foreground">{t("80D (health insurance)")}</p>
                       <p className="mt-2 text-sm text-muted-foreground">
                         {t("Premiums for health insurance (self/family/parents) can reduce taxable income under Section 80D (limits vary).")}
                       </p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm font-medium text-foreground">{t("FD/RD taxation")}</p>
                       <p className="mt-2 text-sm text-muted-foreground">
                         {t("Interest is generally taxable as per your slab. Use post-tax return for comparisons, and remember TDS may apply.")}
                       </p>
                     </div>
-                    <div className="glass rounded-2xl p-4">
+                    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
                       <p className="text-sm font-medium text-foreground">{t("SIP vs RD vs FD")}</p>
                       <div className="mt-3 overflow-hidden">
                         <Table>

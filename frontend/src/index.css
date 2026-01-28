@@ -5,117 +5,81 @@
 @layer base {
   :root {
     /* Light mode - Vibrant, professional, modern */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    --background: 0 0% 98%;
+    --foreground: 220 13% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 220 13% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 220 13% 18%;
 
     /* Primary - Vibrant cyan/blue gradient */
-    --primary: 195 100% 60%;
+    --primary: 217 84% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 30% 95%;
-    --secondary-foreground: 210 50% 20%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 195 80% 95%;
-    --accent-foreground: 195 100% 30%;
+    --accent: 214 90% 96%;
+    --accent-foreground: 220 13% 18%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 85%;
-    --input: 210 20% 95%;
-    --ring: 195 100% 60%;
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 217 84% 55%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --success: 142 76% 50%;
+    --success: 142 52% 38%;
     --success-foreground: 0 0% 100%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 195 100% 60%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 13% 18%;
+    --sidebar-primary: 217 84% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 30% 95%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 210 20% 85%;
-    --sidebar-ring: 195 100% 60%;
+    --sidebar-accent: 214 90% 96%;
+    --sidebar-accent-foreground: 220 13% 18%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 217 84% 55%;
   }
 
   .dark {
     /* Base colors - Vibrant dark theme with depth */
-    --background: 220 30% 8%;       /* Rich dark blue-gray base */
-    --foreground: 0 0% 98%;         /* Bright white text */
-
-    /* Enhanced Glassmorphism effect - More vibrant and modern */
-    --glass-bg: rgba(30, 40, 60, 0.4);
-    --glass-border: rgba(100, 150, 255, 0.2);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(100, 150, 255, 0.1);
-    --glass-blur: blur(16px);
-    --glass-backdrop: brightness(1.2) saturate(1.1);
-
-    /* Surface colors - More vibrant with blue tint */
-    --card: 220 25% 12%;            /* Rich dark blue-gray */
-    --card-foreground: 0 0% 98%;    /* Bright text */
-    --popover: 220 25% 14%;         /* Slightly lighter for popups */
-    --popover-foreground: 0 0% 98%;
-
-    /* Primary - Vibrant cyan with more saturation */
-    --primary: 195 100% 65%;         /* Bright, vibrant cyan */
-    --primary-foreground: 220 30% 8%; /* Dark text on primary */
-    --primary-hover: 195 100% 70%;   /* Lighter on hover */
-    --primary-active: 195 100% 60%;   /* Slightly darker when active */
-
-    /* Secondary - Vibrant blue-gray */
-    --secondary: 220 40% 20%;       /* Rich blue-gray */
-    --secondary-foreground: 0 0% 98%;
-    --secondary-hover: 220 40% 25%;  /* Lighter on hover */
-    --secondary-active: 220 40% 18%; /* Darker when active */
-
-    /* Muted/disabled text */
-    --muted: 220 25% 18%;           /* Subtle blue-gray background */
-    --muted-foreground: 220 10% 65%; /* Softer blue-gray text */
-
-    /* Accent colors - Vibrant purple-blue */
-    --accent: 250 60% 25%;          /* Rich purple-blue */
-    --accent-foreground: 0 0% 98%;  /* Bright text */
-
-    /* Destructive actions - Vibrant red */
-    --destructive: 0 84% 60%;       /* Bright red */
+    --background: 0 0% 98%;
+    --foreground: 220 13% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+    --primary: 217 84% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 214 90% 96%;
+    --accent-foreground: 220 13% 18%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --destructive-hover: 0 84% 65%;  /* Lighter on hover */
-
-    /* UI elements */
-    --border: 220 30% 25%;          /* Visible borders with blue tint */
-    --input: 220 25% 15%;           /* Input fields */
-    --ring: 195 100% 65%;           /* Vibrant focus ring */
-
-    /* Semantic colors - More vibrant */
-    --success: 142 76% 50%;         /* Bright green */
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 217 84% 55%;
+    --success: 142 52% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 45 100% 55%;         /* Bright amber */
-    --warning-foreground: 220 30% 8%;
-    --error: 0 84% 60%;             /* Bright red */
-    --error-foreground: 0 0% 100%;
-    --info: 195 100% 65%;           /* Primary cyan */
-    --info-foreground: 220 30% 8%;
-
-    /* Sidebar specific */
-    --sidebar-background: 220 30% 10%; /* Slightly different from main bg */
-    --sidebar-foreground: 0 0% 90%;   /* Light gray text */
-    --sidebar-primary: 195 100% 65%;   /* Vibrant cyan for active items */
-    --sidebar-primary-foreground: 220 30% 8%;
-    --sidebar-accent: 220 40% 20%;     /* Hover state */
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 30% 25%;     /* Visible border */
-    --sidebar-ring: 195 100% 65%;      /* Matches primary ring */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 13% 18%;
+    --sidebar-primary: 217 84% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 90% 96%;
+    --sidebar-accent-foreground: 220 13% 18%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 217 84% 55%;
   }
 }
 
@@ -126,60 +90,35 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background: linear-gradient(135deg, 
-      hsl(var(--background)), 
-      hsl(220 30% 10%));
     min-height: 100vh;
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, hsl(250 60% 50% / 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  body > * {
-    position: relative;
-    z-index: 1;
   }
 
   /* Enhanced Glassmorphism Effect */
   .glass {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur) var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-blur) var(--glass-backdrop);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
     border-radius: var(--radius);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .glass:hover {
-    border-color: hsl(var(--primary) / 0.4);
-    box-shadow: var(--glass-shadow), 0 0 20px hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--border));
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.08);
   }
 
   /* Card styles with enhanced glassmorphism */
   .card {
-    @apply glass p-6 transition-all duration-300 ease-out;
+    @apply glass p-6 transition-colors duration-200;
   }
 
   /* Gradient backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(195 100% 55%));
+    background: hsl(var(--primary));
   }
 
   .gradient-accent {
-    background: linear-gradient(135deg, hsl(var(--accent)), hsl(250 60% 30%));
+    background: hsl(var(--accent));
   }
 
   /* Button styles with gradients */
@@ -188,8 +127,7 @@
   }
 
   .btn-primary {
-    @apply gradient-primary text-primary-foreground hover:opacity-90 active:opacity-80 
-           shadow-lg shadow-primary/30;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95;
   }
 
   .btn-secondary {
@@ -201,7 +139,7 @@
   .input {
     @apply bg-card/60 border border-border/50 rounded-lg px-4 py-2 w-full 
            focus:ring-2 focus:ring-primary focus:ring-opacity-60 focus:outline-none
-           focus:border-primary/50 backdrop-blur-sm
+           focus:border-primary/50
            transition-all duration-200 ease-in-out;
   }
 
@@ -212,41 +150,31 @@
 
   .sidebar-item {
     @apply px-4 py-2 rounded-lg transition-all duration-200 ease-in-out
-           hover:bg-accent/50 hover:text-accent-foreground hover:shadow-md;
+           hover:bg-accent/40 hover:text-foreground;
   }
 
   .sidebar-item.active {
-    @apply bg-primary/20 text-primary border-l-4 border-primary shadow-lg shadow-primary/20;
+    @apply bg-accent/60 text-foreground border-l-4 border-primary;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-card/60 border border-border/40 backdrop-blur-xl;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
-                0 0 0 1px rgba(100, 150, 255, 0.1);
+    @apply bg-card border border-border;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
   }
 
   .glass-strong {
-    @apply bg-card/80 border border-primary/30 backdrop-blur-2xl;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(100, 150, 255, 0.2),
-                0 0 40px rgba(100, 150, 255, 0.1);
+    @apply bg-card border border-border;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
   }
 
   .gradient-bg {
-    background: linear-gradient(135deg, 
-      hsl(var(--background)), 
-      hsl(220 30% 12%));
+    background: hsl(var(--background));
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, 
-      hsl(var(--primary)), 
-      hsl(195 100% 70%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: hsl(var(--foreground));
   }
 
   .gradient-border {
@@ -261,24 +189,17 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, 
-      hsl(var(--primary) / 0.5), 
-      hsl(250 60% 50% / 0.5));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, 
-                  linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+    background: none;
+    opacity: 0;
     pointer-events: none;
   }
 
   .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3),
-                0 0 40px hsl(var(--primary) / 0.1);
+    box-shadow: none;
   }
 
   .glow-accent {
-    box-shadow: 0 0 20px hsl(var(--accent) / 0.3),
-                0 0 40px hsl(var(--accent) / 0.1);
+    box-shadow: none;
   }
 
   .bg-card\/40 {

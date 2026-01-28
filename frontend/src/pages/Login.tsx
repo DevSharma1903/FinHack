@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { DEMO_CREDENTIALS, ensureSeedUsers, getCurrentUser, login } from "@/lib/auth";
 
@@ -36,19 +35,18 @@ const Login = () => {
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-10">
         <header className="flex items-center justify-between gap-4">
           <button type="button" className="text-left" onClick={() => navigate("/")}> 
-            <div className="text-2xl font-semibold tracking-tight gradient-text">FinHack</div>
+            <div className="text-2xl font-semibold tracking-tight text-foreground">Invest$ure</div>
             <div className="text-sm text-muted-foreground">Sign in to continue</div>
           </button>
 
           <div className="flex items-center gap-2">
             <LanguageSelector />
-            <ThemeToggle />
           </div>
         </header>
 
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <div className="rounded-xl border bg-card/40 p-6 md:p-8 glass">
+            <div className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-sm">
               <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
               <p className="mt-2 text-muted-foreground">
                 Use a demo login below or sign in with an account you created locally.
@@ -59,7 +57,7 @@ const Login = () => {
                   <button
                     key={c.email}
                     type="button"
-                    className="rounded-lg border bg-card/60 p-3 text-left hover:bg-card/80 transition-colors"
+                    className="rounded-lg border border-border bg-card p-3 text-left hover:bg-secondary transition-colors duration-200"
                     onClick={() => {
                       setEmail(c.email);
                       setPassword(c.password);
@@ -83,7 +81,7 @@ const Login = () => {
           </div>
 
           <div className="lg:col-span-5">
-            <Card className="glass-strong">
+            <Card className="bg-card border border-border rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Login</CardTitle>
                 <CardDescription>Enter your credentials to open the workspace.</CardDescription>

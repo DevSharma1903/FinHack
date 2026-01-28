@@ -27,7 +27,7 @@ const formatPercent = (value) => {
 
 function StatItem({ label, value, hint }) {
   return (
-    <div className="glass rounded-2xl p-4">
+    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">{label}</p>
         {hint ? (

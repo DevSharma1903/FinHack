@@ -272,7 +272,7 @@ export function NpsSchemesTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="glass">
+      <Card className="bg-card border border-border rounded-lg shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-xl">{t("NPS NAV")}</CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -362,8 +362,7 @@ export function NpsSchemesTab() {
                     strokeWidth={3}
                     dot={false}
                     connectNulls
-                    isAnimationActive
-                    animationDuration={800}
+                    isAnimationActive={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -372,7 +371,7 @@ export function NpsSchemesTab() {
         </CardContent>
       </Card>
 
-      <Card className="glass">
+      <Card className="bg-card border border-border rounded-lg shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-xl">{t("Compare two schemes")}</CardTitle>
         </CardHeader>
@@ -454,8 +453,7 @@ export function NpsSchemesTab() {
                     strokeWidth={3}
                     dot={false}
                     connectNulls
-                    isAnimationActive
-                    animationDuration={800}
+                    isAnimationActive={false}
                   />
                   <Line
                     type="linear"
@@ -465,8 +463,7 @@ export function NpsSchemesTab() {
                     strokeWidth={3}
                     dot={false}
                     connectNulls
-                    isAnimationActive
-                    animationDuration={800}
+                    isAnimationActive={false}
                   />
                 </LineChart>
               </ResponsiveContainer>

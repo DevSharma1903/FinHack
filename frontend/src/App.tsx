@@ -28,7 +28,7 @@ const App = () => (
           <Route 
             path="/login" 
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Login />
                 </LanguageProvider>
@@ -38,7 +38,7 @@ const App = () => (
           <Route 
             path="/signup" 
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Signup />
                 </LanguageProvider>
@@ -51,7 +51,7 @@ const App = () => (
             path="/app"
             element={
               <ProtectedRoute>
-                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+                <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                   <LanguageProvider>
                     <Index />
                   </LanguageProvider>
@@ -64,7 +64,7 @@ const App = () => (
           <Route
             path="/decoder"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>
@@ -74,7 +74,7 @@ const App = () => (
           <Route
             path="/retirement"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>
@@ -84,7 +84,7 @@ const App = () => (
           <Route
             path="/insurance"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>
@@ -94,7 +94,7 @@ const App = () => (
           <Route
             path="/education"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>
@@ -104,7 +104,7 @@ const App = () => (
           <Route
             path="/nps"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>
@@ -114,7 +114,7 @@ const App = () => (
           <Route
             path="/policy"
             element={
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
                 <LanguageProvider>
                   <Index />
                 </LanguageProvider>

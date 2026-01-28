@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { BarChart3, Bot, ShieldCheck, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ensureSeedUsers, getCurrentUser, logout } from "@/lib/auth";
 
@@ -19,50 +17,33 @@ const Landing = () => {
     setUserEmail(user?.email ?? null);
   }, []);
 
-  const features = useMemo(
+  const modules = useMemo(
     () => [
-      {
-        title: "Real-time insights",
-        description: "Quick simulations and breakdowns so you can make better decisions faster.",
-        Icon: BarChart3,
-      },
-      {
-        title: "Investment Planner",
-        description: "Plan your investments with ease leveraging ML Models trained on real-world data.",
-        Icon: Sparkles,
-      },
-      {
-        title: "AI assisted workflows",
-        description: "Use smart helpers to summarize, compare and highlight key risks.",
-        Icon: Bot,
-      },
-      {
-        title: "Ethical Finance",
-        description: "Blockchain verified hashing of advice & recommendations.",
-        Icon: ShieldCheck,
-      },
+      { title: "Decoder", description: "Get an allocation recommendation from your inputs.", path: "/decoder" },
+      { title: "Retirement", description: "Plan your retirement corpus and compare scenarios.", path: "/retirement" },
+      { title: "Insurance", description: "Estimate coverage gap and premium impact.", path: "/insurance" },
+      { title: "Education", description: "Learn tax basics and investment concepts.", path: "/education" },
+      { title: "NPS Schemes", description: "Explore NAV history and compare schemes.", path: "/nps" },
+      { title: "Policy", description: "Read policy guidance and references.", path: "/policy" },
     ],
     [],
   );
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-10">
-        <header className="flex items-center justify-between gap-4">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 md:px-8 h-16 flex items-center justify-between gap-4">
           <button type="button" className="text-left" onClick={() => navigate("/")}
           >
-            <h1 className="text-3xl font-semibold tracking-tight gradient-text">FinHack</h1>
-            <p className="text-sm text-muted-foreground">Build smarter financial decisions with better tools.</p>
+            <div className="text-sm font-semibold text-foreground">Invest$ure</div>
+            <div className="hidden sm:block text-xs text-muted-foreground">Professional financial planning tools</div>
           </button>
 
           <div className="flex items-center gap-2">
             <LanguageSelector />
-            <ThemeToggle />
             {userEmail ? (
               <>
-                <Button type="button" variant="outline" onClick={() => navigate("/app")}>
-                  Open app
-                </Button>
+                <Button type="button" variant="outline" onClick={() => navigate("/app")}>Open app</Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -77,54 +58,47 @@ const Landing = () => {
               </>
             ) : (
               <>
-                <Button type="button" variant="outline" onClick={() => navigate("/login")}>
-                  Login
-                </Button>
-                <Button type="button" onClick={() => navigate("/signup")}>
-                  Signup
-                </Button>
+                <Button type="button" variant="outline" onClick={() => navigate("/login")}>Login</Button>
+                <Button type="button" onClick={() => navigate("/signup")}>Sign up</Button>
               </>
             )}
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="mx-auto mt-14 max-w-6xl">
-          <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight">
-              Your finance toolkit,
-              <span className="gradient-text"> built for speed</span>
-            </h2>
-            <p className="max-w-3xl text-base md:text-lg text-muted-foreground">
-              FinHack helps you simulate outcomes, decode complex documents, and build clarity with modern, AI-assisted workflows.
-            </p>
-          </div>
+      <main className="mx-auto max-w-7xl px-4 md:px-8 py-10">
+        <section className="max-w-3xl">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">Your finance toolkit</h1>
+          <p className="mt-3 text-sm md:text-base text-muted-foreground">
+            Simulate outcomes, compare scenarios, and make decisions with clarity.
+          </p>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
-            {features.map(({ title, description, Icon }) => (
-              <div key={title} className="rounded-lg border bg-card/40 p-5">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 rounded-md bg-primary/10 p-2 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="text-base font-medium">{title}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{description}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button type="button" size="lg" onClick={() => navigate(userEmail ? "/app" : "/signup")}>
-              {userEmail ? "Open workspace" : "Create free account"}
+              {userEmail ? "Open workspace" : "Create account"}
             </Button>
             <Button type="button" size="lg" variant="outline" onClick={() => navigate(userEmail ? "/app" : "/login")}>
               {userEmail ? "Go to app" : "Login"}
             </Button>
           </div>
-        </main>
-      </div>
+        </section>
+
+        <section className="mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {modules.map((m) => (
+              <button
+                key={m.path}
+                type="button"
+                onClick={() => navigate(m.path)}
+                className="text-left bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <div className="text-sm font-semibold text-foreground">{m.title}</div>
+                <div className="mt-1 text-sm text-muted-foreground">{m.description}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

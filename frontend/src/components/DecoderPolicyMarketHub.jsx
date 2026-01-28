@@ -577,7 +577,7 @@ export function DecoderPolicyMarketHub() {
   }
 
   return (
-    <Card className="glass">
+    <Card className="bg-card border border-border rounded-lg shadow-sm">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-xl">{t("Investment Allocation Simulator")}</CardTitle>
@@ -586,7 +586,7 @@ export function DecoderPolicyMarketHub() {
               <Label className="text-sm">{t("Rural mode")}</Label>
               <p className="text-xs text-muted-foreground">{t("Debt trap, variable income, missed payments")}</p>
             </div>
-            <Switch checked={isRural} onCheckedChange={setIsRural} className="data-[state=checked]:bg-accent" />
+            <Switch checked={isRural} onCheckedChange={setIsRural} className="data-[state=checked]:bg-foreground" />
           </div>
         </div>
       </CardHeader>
@@ -655,7 +655,7 @@ export function DecoderPolicyMarketHub() {
               </div>
             </div>
 
-            <div className="glass rounded-2xl p-4 space-y-2">
+            <div className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-2">
               <Label className="text-sm text-muted-foreground">{t("Financial goals")}</Label>
               <Textarea
                 value={financialGoals}
@@ -824,16 +824,16 @@ export function DecoderPolicyMarketHub() {
 
                                 {selectedInvestmentType === "Hybrid" ? (
                                   <>
-                                    <Area type="monotone" dataKey="sip" name="SIP" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
-                                    <Area type="monotone" dataKey="rd" name="RD" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
-                                    <Area type="monotone" dataKey="fd" name="FD" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} />
+                                    <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} isAnimationActive={false} />
+                                    <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.12)" fillOpacity={1} isAnimationActive={false} />
+                                    <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(var(--foreground) / 0.70)" fill="hsl(var(--foreground) / 0.08)" fillOpacity={1} isAnimationActive={false} />
                                   </>
                                 ) : selectedInvestmentType === "SIP" ? (
-                                  <Area type="monotone" dataKey="sip" name="SIP" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
+                                  <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} isAnimationActive={false} />
                                 ) : selectedInvestmentType === "RD" ? (
-                                  <Area type="monotone" dataKey="rd" name="RD" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
+                                  <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.12)" fillOpacity={1} isAnimationActive={false} />
                                 ) : (
-                                  <Area type="monotone" dataKey="fd" name="FD" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} />
+                                  <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(var(--foreground) / 0.70)" fill="hsl(var(--foreground) / 0.08)" fillOpacity={1} isAnimationActive={false} />
                                 )}
                               </AreaChart>
                             </ResponsiveContainer>
@@ -847,11 +847,9 @@ export function DecoderPolicyMarketHub() {
                             </p>
                           ) : null}
                           {/* ================= AI EXPLANATION ================= */}
-                          <Card className="glass mt-6">
+                          <Card className="bg-card border border-border rounded-lg shadow-sm mt-6">
                             <CardHeader>
-                              <CardTitle className="text-lg">
-                                🤖 Personalized Investment Explanation
-                              </CardTitle>
+                              <CardTitle className="text-lg">Personalized Investment Explanation</CardTitle>
                             </CardHeader>
 
                             <CardContent className="space-y-4">
@@ -875,9 +873,9 @@ export function DecoderPolicyMarketHub() {
                                   </div>
 
                                   {/* ===== Blockchain verification ===== */}
-                                  <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-3">
-                                    <p className="text-sm font-semibold text-success">
-                                      ✅ Blockchain integrity verified
+                                  <div className="mt-4 rounded-lg border border-border bg-muted/20 p-3">
+                                    <p className="text-sm font-semibold text-foreground">
+                                      Integrity verification
                                     </p>
 
                                     {hashLoading ? (
@@ -889,7 +887,7 @@ export function DecoderPolicyMarketHub() {
                                         <p className="text-xs text-muted-foreground">
                                           SHA-256 hash stored on immutable ledger
                                         </p>
-                                        <p className="break-all text-[11px] font-mono text-muted-foreground">
+                                        <p className="break-all text-[11px] text-muted-foreground">
                                           {adviceHash}
                                         </p>
                                       </>
@@ -912,14 +910,14 @@ export function DecoderPolicyMarketHub() {
           </>
         ) : (
           <Tabs value={ruralTab} onValueChange={setRuralTab}>
-            <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 glass p-1">
-              <TabsTrigger value="debtTrap" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+            <TabsList className="flex w-full flex-wrap items-center justify-start gap-1 bg-muted border border-border rounded-md p-1">
+              <TabsTrigger value="debtTrap" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Debt Trap")}
               </TabsTrigger>
-              <TabsTrigger value="variableIncome" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+              <TabsTrigger value="variableIncome" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Variable Income")}
               </TabsTrigger>
-              <TabsTrigger value="missedPayments" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 transition-all duration-200">
+              <TabsTrigger value="missedPayments" className="rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                 {t("Missed Payments")}
               </TabsTrigger>
             </TabsList>
@@ -939,11 +937,11 @@ export function DecoderPolicyMarketHub() {
               </Button>
 
               {debtResult ? (
-                <Card className="glass">
+                <Card className="bg-card border border-border rounded-lg shadow-sm">
                   <CardContent className="pt-5 space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold">{t("Result")}</p>
-                      <span className={debtResult.debt_trap ? "text-sm font-semibold text-destructive" : "text-sm font-semibold text-success"}>
+                      <span className="text-sm font-semibold text-foreground">
                         {debtResult.debt_trap ? t("Debt-trap risk") : t("Looks safe")}
                       </span>
                     </div>
@@ -1072,9 +1070,9 @@ export function DecoderPolicyMarketHub() {
                         <YAxis tickFormatter={formatCurrency} />
                         <Tooltip formatter={formatCurrency} />
                         <Legend />
-                        <Area type="monotone" dataKey="sip" name="SIP" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
-                        <Area type="monotone" dataKey="rd" name="RD" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
-                        <Area type="monotone" dataKey="fd" name="FD" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} />
+                        <Area type="monotone" dataKey="sip" name="SIP" stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} isAnimationActive={false} />
+                        <Area type="monotone" dataKey="rd" name="RD" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.12)" fillOpacity={1} isAnimationActive={false} />
+                        <Area type="monotone" dataKey="fd" name="FD" stroke="hsl(var(--foreground) / 0.70)" fill="hsl(var(--foreground) / 0.08)" fillOpacity={1} isAnimationActive={false} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -1148,13 +1146,13 @@ export function DecoderPolicyMarketHub() {
               {missedResult ? (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    <Card className="glass">
+                    <Card className="bg-card border border-border rounded-lg shadow-sm">
                       <CardContent className="pt-5 space-y-1">
                         <p className="text-xs text-muted-foreground">{t("Without missed payments (10Y)")}</p>
                         <p className="text-lg font-semibold">{formatCurrency(missedResult.normal_final)}</p>
                       </CardContent>
                     </Card>
-                    <Card className="glass">
+                    <Card className="bg-card border border-border rounded-lg shadow-sm">
                       <CardContent className="pt-5 space-y-1">
                         <p className="text-xs text-muted-foreground">{t("With missed payments (10Y)")}</p>
                         <p className="text-lg font-semibold">{formatCurrency(missedResult.missed_final)}</p>
@@ -1163,7 +1161,7 @@ export function DecoderPolicyMarketHub() {
                     </Card>
                   </div>
 
-                  <Card className="glass">
+                  <Card className="bg-card border border-border rounded-lg shadow-sm">
                     <CardContent className="pt-5 space-y-3">
                       <p className="text-sm font-semibold">{t("Impact")}</p>
                       <p className="text-sm text-muted-foreground">
@@ -1183,8 +1181,8 @@ export function DecoderPolicyMarketHub() {
                             <YAxis tickFormatter={formatCurrency} />
                             <Tooltip formatter={formatCurrency} />
                             <Legend />
-                            <Area type="monotone" dataKey="normal_total" name={t("No missed")} stroke="#22c55e" fill="#22c55e" fillOpacity={0.18} />
-                            <Area type="monotone" dataKey="missed_total" name={t("Missed")} stroke="#f97316" fill="#f97316" fillOpacity={0.18} />
+                            <Area type="monotone" dataKey="normal_total" name={t("No missed")} stroke="hsl(var(--foreground))" fill="hsl(var(--foreground) / 0.10)" fillOpacity={1} isAnimationActive={false} />
+                            <Area type="monotone" dataKey="missed_total" name={t("Missed")} stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground) / 0.12)" fillOpacity={1} isAnimationActive={false} />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
